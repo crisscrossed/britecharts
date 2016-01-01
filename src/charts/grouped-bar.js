@@ -372,7 +372,8 @@ define(function (require) {
             } else {
                 svg.select('.x-axis-group .axis.x')
                     .attr('transform', `translate( 0, ${chartHeight} )`)
-                    .call(xAxis);
+                    .call(xAxis)
+                    .call(adjustXTickLabels);
 
                 svg.select('.y-axis-group.axis')
                     .attr('transform', `translate( ${-xAxisPadding.left}, 0)`)

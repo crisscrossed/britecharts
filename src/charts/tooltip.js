@@ -526,14 +526,18 @@ define(function(require){
          * @return void
          */
         function updateContent(dataPoint){
-            var topics = dataPoint[topicLabel];
-
-            // sort order by forceOrder array if passed
-            if (forceOrder.length) {
-                topics = _sortByForceOrder(topics);
-            } else if (topics.length && topics[0].name) {
-                topics = _sortByAlpha(topics);
+            var topics
+            if (!dataPoint['group']) {
+                topics = dataPoint[topicLabel];
+            } else {
+                topics = dataPoint.values
             }
+            // sort order by forceOrder array if passed
+            // if (forceOrder.length) {
+            //     topics = _sortByForceOrder(topics);
+            // } else if (topics.length && topics[0].name) {
+            //     topics = _sortByAlpha(topics);
+            // }
 
             cleanContent();
             updateTitle(dataPoint);
