@@ -583,6 +583,22 @@ define(function(require){
         };
 
         /**
+         * Gets or Sets the tooltipWidth of the tooltip
+         * @param  {number} _x Desired tooltipWidth
+         * @return { number | module} tooltipWidth title or module to chain calls
+         * @public
+         */
+
+        exports.tooltipWidth = function(_x) {
+            if (!arguments.length) {
+                return tooltipWidth;
+            }
+            tooltipWidth = _x;
+
+            return this;
+        };
+
+        /**
          * Gets or Sets the title of the tooltip
          * @param  {string} _x Desired title
          * @return { string | module} Current title or module to chain calls
