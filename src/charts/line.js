@@ -244,14 +244,13 @@ define(function(require){
          */
         function getFormattedValue(value) {
             let format;
-
-            if (isInteger(value)) {
-                format = formatIntegerValue;
-            } else {
-                format = formatDecimalValue;
-            }
-
-            return format(value);
+            // if (isInteger(value)) {
+            //     format = formatIntegerValue;
+            // } else {
+            //     format = formatDecimalValue;
+            // }
+            return String(value / 10000000) + ' Mio.'
+            // return format(value);
         }
 
         /**

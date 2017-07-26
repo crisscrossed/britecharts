@@ -107,13 +107,14 @@ define(function(require){
             nameLabel = 'name',
             topicLabel = 'topics',
 
-            defaultAxisSettings = axisTimeCombinations.DAY_MONTH,
+            defaultAxisSettings = axisTimeCombinations.YEAR,
             forceAxisSettings = null,
             forceOrder = [],
 
             // formats
             monthDayYearFormat = d3TimeFormat.timeFormat('%b %d, %Y'),
             monthDayHourFormat = d3TimeFormat.timeFormat('%b %d, %I %p'),
+            yearFormat = d3TimeFormat.timeFormat('%Y'),
             locale,
 
             chartWidth, chartHeight,
@@ -238,11 +239,11 @@ define(function(require){
                 return 0;
             }
 
-            if (isInteger(value)) {
-                value = formatIntegerValue(value);
-            } else {
-                value = formatDecimalValue(value);
-            }
+            // if (isInteger(value)) {
+            //     value = formatIntegerValue(value);
+            // } else {
+            //     value = formatDecimalValue(value);
+            // }
 
             return value;
         }
@@ -315,7 +316,7 @@ define(function(require){
                 tooltipRightText,
                 elementText;
 
-            tooltipLeftText = topic.topicName || name;
+            tooltipLeftText = '';
             tooltipRightText = getValueText(topic);
 
             elementText = tooltipBody
@@ -338,10 +339,10 @@ define(function(require){
                 .text(tooltipRightText);
 
             textSize = elementText.node().getBBox();
-            tooltipHeight += textSize.height + 5;
+            tooltipHeight += textSize.height + 10;
 
-            // Not sure if necessary
-            tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4)
+            // Distance between circle and value
+            tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 50 - tooltipWidth / 4)
 
             tooltipBody
                 .append('circle')
@@ -387,7 +388,7 @@ define(function(require){
          */
         function updateTitle(dataPoint) {
             var date = new Date(dataPoint[dateLabel]),
-                tooltipTitleText = title + ' - ' + formatDate(date);
+                tooltipTitleText = title + ' ' + formatDate(date);
 
             tooltipTitle.text(tooltipTitleText);
         }
@@ -407,6 +408,9 @@ define(function(require){
             } else if (settings === axisTimeCombinations.HOUR_DAY || settings === axisTimeCombinations.MINUTE_HOUR) {
                 format = monthDayHourFormat;
                 localeOptions.hour = 'numeric';
+            } else if (settings === axisTimeCombinations.YEAR) {
+                format = yearFormat;
+                localeOptions.year = 'numeric';
             }
 
             if (locale && ((typeof Intl !== 'undefined') && (typeof Intl === 'object' && Intl.DateTimeFormat))) {
