@@ -244,8 +244,11 @@ define(function(require){
             // } else {
             //     value = formatDecimalValue(value);
             // }
-
-            return value;
+            if (value > 1000) {
+                return String(parseFloat(value / 100000000).toFixed(2)) + ' Mio.'
+            } else {
+                return value
+            }
         }
 
         /**
@@ -310,13 +313,14 @@ define(function(require){
          * @return void
          */
         function updateTopicContent(topic){
+            let color = topic['group'] ? topic['group'] : topic[nameLabel]
             let name = topic[nameLabel],
                 tooltipRight,
                 tooltipLeftText,
                 tooltipRightText,
                 elementText;
 
-            tooltipLeftText = '';
+            tooltipLeftText = topic.topicName || name;
             tooltipRightText = getValueText(topic);
 
             elementText = tooltipBody
@@ -341,8 +345,7 @@ define(function(require){
             textSize = elementText.node().getBBox();
             tooltipHeight += textSize.height + 10;
 
-            // Distance between circle and value
-            tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 50 - tooltipWidth / 4)
+            tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4)
 
             tooltipBody
                 .append('circle')
@@ -350,7 +353,7 @@ define(function(require){
                 .attr('cx', 23 - tooltipWidth / 4)
                 .attr('cy', (ttTextY + circleYOffset))
                 .attr('r', 5)
-                .style('fill', colorMap[name])
+                .style('fill', colorMap[color])
                 .style('stroke-width', 1);
 
             ttTextY += textSize.height + 7;
@@ -386,12 +389,16 @@ define(function(require){
          * @param  {Object} dataPoint Point of data to use as source
          * @return void
          */
-        function updateTitle(dataPoint) {
-            var date = new Date(dataPoint[dateLabel]),
-                tooltipTitleText = title + ' ' + formatDate(date);
-
-            tooltipTitle.text(tooltipTitleText);
-        }
+         function updateTitle(dataPoint) {
+             var tooltipTitleText
+             if (isNaN(dataPoint[dateLabel])) {
+                tooltipTitleText = dataPoint.name
+             } else {
+                 var date = new Date(dataPoint[dateLabel]);
+                 tooltipTitleText = title + ' ' + formatDate(date);
+             }
+             tooltipTitle.text(tooltipTitleText);
+         }
 
         /**
          * Figures out which date format to use when showing the date of the current data entry

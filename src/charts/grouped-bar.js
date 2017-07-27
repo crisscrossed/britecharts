@@ -86,6 +86,9 @@ define(function (require) {
             yTickTextYOffset = -8,
             yTickTextXOffset = -20,
 
+            xTickTextYOffset = -8,
+            xTickTextXOffset = -20,
+
             numOfVerticalTicks = 5,
             numOfHorizontalTicks = 5,
             baseLine,
@@ -176,6 +179,19 @@ define(function (require) {
             svg.selectAll('.bar')
                 .on('mouseover', handleBarsMouseOver)
                 .on('mouseout', handleBarsMouseOut);
+        }
+
+        /**
+         * Adjusts the position of the x axis' ticks
+         * @param  {D3Selection} selection X axis group
+         * @return void
+         */
+        function adjustXTickLabels(selection) {
+            selection.selectAll('.tick text')
+                // .attr('transform', `translate(${xTickTextXOffset}, ${xTickTextYOffset})`)
+                .attr("dx", "6.5em")
+                .attr("dy", "2em")
+                .attr("transform", "rotate(45 -10 10)" );
         }
 
         /**
