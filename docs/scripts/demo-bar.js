@@ -4,12 +4,13 @@ webpackJsonp([0,10],[
 
 	'use strict';
 	
-	var d3Selection = __webpack_require__(1),
-	    PubSub = __webpack_require__(2),
-	    bar = __webpack_require__(3),
-	    miniTooltip = __webpack_require__(24),
-	    colors = __webpack_require__(19),
-	    dataBuilder = __webpack_require__(25);
+	var d3Selection = __webpack_require__(1);
+	var PubSub = __webpack_require__(2);
+	
+	var bar = __webpack_require__(3);
+	var miniTooltip = __webpack_require__(24);
+	var colors = __webpack_require__(19);
+	var dataBuilder = __webpack_require__(25);
 	
 	__webpack_require__(29);
 	
@@ -18,7 +19,7 @@ webpackJsonp([0,10],[
 	        testDataSet = new dataBuilder.BarDataBuilder(),
 	        barContainer = d3Selection.select('.js-bar-chart-container'),
 	        containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false,
-	        dataset;
+	        dataset = void 0;
 	
 	    if (containerWidth) {
 	        dataset = testDataSet.withLettersFrequency().build();
@@ -35,13 +36,13 @@ webpackJsonp([0,10],[
 	        testDataSet = new dataBuilder.BarDataBuilder(),
 	        barContainer = d3Selection.select('.js-horizontal-bar-chart-container'),
 	        containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false,
-	        tooltipContainer,
-	        dataset;
+	        tooltipContainer = void 0,
+	        dataset = void 0;
 	
 	    if (containerWidth) {
 	        dataset = testDataSet.withColors().build();
 	
-	        barChart.horizontal(true).isAnimated(true).margin({
+	        barChart.isHorizontal(true).isAnimated(true).margin({
 	            left: 120,
 	            right: 20,
 	            top: 20,
@@ -61,8 +62,8 @@ webpackJsonp([0,10],[
 	        testDataSet = new dataBuilder.BarDataBuilder(),
 	        barContainer = d3Selection.select('.js-bar-chart-tooltip-container'),
 	        containerWidth = barContainer.node() ? barContainer.node().getBoundingClientRect().width : false,
-	        tooltipContainer,
-	        dataset;
+	        tooltipContainer = void 0,
+	        dataset = void 0;
 	
 	    if (containerWidth) {
 	        d3Selection.select('.js-download-button').on('click', function () {
@@ -71,7 +72,7 @@ webpackJsonp([0,10],[
 	
 	        dataset = testDataSet.withLettersFrequency().build();
 	
-	        barChart.width(containerWidth).height(300).isAnimated(true).usePercentage(true).on('customMouseOver', tooltip.show).on('customMouseMove', tooltip.update).on('customMouseOut', tooltip.hide);
+	        barChart.width(containerWidth).height(300).isAnimated(true).hasPercentage(true).on('customMouseOver', tooltip.show).on('customMouseMove', tooltip.update).on('customMouseOut', tooltip.hide);
 	
 	        barContainer.datum(dataset).call(barChart);
 	
@@ -1445,19 +1446,20 @@ webpackJsonp([0,10],[
 	        },
 	            yAxisPaddingBetweenChart = 10,
 	            yAxisLineWrapLimit = 1,
-	            horizontal = false,
+	            isHorizontal = false,
 	            svg = void 0,
 	            isAnimated = false,
 	            ease = d3Ease.easeQuadInOut,
 	            animationDuration = 800,
+	            animationStepRatio = 70,
 	            interBarDelay = function interBarDelay(d, i) {
-	            return 70 * i;
+	            return animationStepRatio * i;
 	        },
 	            valueLabel = 'value',
 	            nameLabel = 'name',
-	            maskGridLines = void 0,
 	            baseLine = void 0,
-	            reverseColorList = true,
+	            maskGridLines = void 0,
+	            shouldReverseColorList = true,
 	
 	
 	        // Dispatcher object to broadcast the mouse events
@@ -1533,7 +1535,7 @@ webpackJsonp([0,10],[
 	         * @private
 	         */
 	        function buildAxis() {
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                xAxis = d3Axis.axisBottom(xScale).ticks(numOfHorizontalTicks, valueLabelFormat).tickSizeInner([-chartHeight]);
 	
 	                yAxis = d3Axis.axisLeft(yScale);
@@ -1566,7 +1568,7 @@ webpackJsonp([0,10],[
 	        function buildScales() {
 	            var percentageAxis = Math.min(percentageAxisToMaxRatio * d3Array.max(data, getValue));
 	
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                xScale = d3Scale.scaleLinear().domain([0, percentageAxis]).rangeRound([0, chartWidth]);
 	
 	                yScale = d3Scale.scaleBand().domain(data.map(getName)).rangeRound([chartHeight, 0]).padding(0.1);
@@ -1576,7 +1578,7 @@ webpackJsonp([0,10],[
 	                yScale = d3Scale.scaleLinear().domain([0, percentageAxis]).rangeRound([chartHeight, 0]);
 	            }
 	
-	            if (reverseColorList) {
+	            if (shouldReverseColorList) {
 	                colorList = data.map(function (d) {
 	                    return d;
 	                }).reverse().map(function (_ref9, i) {
@@ -1828,9 +1830,9 @@ webpackJsonp([0,10],[
 	         * @return {void}
 	         */
 	        function drawPercentageLabels() {
-	            var labelXPosition = horizontal ? _percentageLabelHorizontalX : _percentageLabelVerticalX;
-	            var labelYPosition = horizontal ? _percentageLabelHorizontalY : _percentageLabelVerticalY;
-	            var text = horizontal ? _percentageLabelHorizontalFormatValue : _percentageLabelVerticalFormatValue;
+	            var labelXPosition = isHorizontal ? _percentageLabelHorizontalX : _percentageLabelVerticalX;
+	            var labelYPosition = isHorizontal ? _percentageLabelHorizontalY : _percentageLabelVerticalY;
+	            var text = isHorizontal ? _percentageLabelHorizontalFormatValue : _percentageLabelVerticalFormatValue;
 	
 	            var percentageLabels = svg.select('.metadata-group').append('g').classed('percentage-label-group', true).selectAll('text').data(data.reverse()).enter().append('text');
 	
@@ -1847,26 +1849,26 @@ webpackJsonp([0,10],[
 	            if (isAnimated) {
 	                bars = svg.select('.chart-group').selectAll('.bar').data(dataZeroed);
 	
-	                if (!horizontal) {
-	                    drawVerticalBars(bars);
-	                } else {
+	                if (isHorizontal) {
 	                    drawHorizontalBars(bars);
+	                } else {
+	                    drawVerticalBars(bars);
 	                }
 	
 	                bars = svg.select('.chart-group').selectAll('.bar').data(data);
 	
-	                if (!horizontal) {
-	                    drawAnimatedVerticalBars(bars);
-	                } else {
+	                if (isHorizontal) {
 	                    drawAnimatedHorizontalBars(bars);
+	                } else {
+	                    drawAnimatedVerticalBars(bars);
 	                }
 	            } else {
 	                bars = svg.select('.chart-group').selectAll('.bar').data(data);
 	
-	                if (!horizontal) {
-	                    drawVerticalBars(bars);
-	                } else {
+	                if (isHorizontal) {
 	                    drawHorizontalBars(bars);
+	                } else {
+	                    drawVerticalBars(bars);
 	                }
 	            }
 	
@@ -1879,10 +1881,10 @@ webpackJsonp([0,10],[
 	         * @return void
 	         */
 	        function drawGridLines() {
-	            if (!horizontal) {
-	                drawVerticalGridLines();
-	            } else {
+	            if (isHorizontal) {
 	                drawHorizontalGridLines();
+	            } else {
+	                drawVerticalGridLines();
 	            }
 	        }
 	
@@ -1986,15 +1988,16 @@ webpackJsonp([0,10],[
 	
 	        /**
 	         * Gets or Sets the horizontal direction of the chart
-	         * @param  {number} _x Desired horizontal direction for the graph
-	         * @return { horizontal | module} Current horizontal direction or Bar Chart module to chain calls
-	         * @public
+	         * @param  {number} _x Desired horizontal direction for the chart
+	         * @return { isHorizontal | module} If it is horizontal or module to chain calls
+	         * @deprecated
 	         */
 	        exports.horizontal = function (_x) {
 	            if (!arguments.length) {
-	                return horizontal;
+	                return isHorizontal;
 	            }
-	            horizontal = _x;
+	            isHorizontal = _x;
+	            console.log('We are deprecating the .horizontal() accessor, use .isHorizontal() instead');
 	
 	            return this;
 	        };
@@ -2012,6 +2015,21 @@ webpackJsonp([0,10],[
 	                return isAnimated;
 	            }
 	            isAnimated = _x;
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets the horizontal direction of the chart
+	         * @param  {number} _x Desired horizontal direction for the graph
+	         * @return { isHorizontal | module} If it is horizontal or Bar Chart module to chain calls
+	         * @public
+	         */
+	        exports.isHorizontal = function (_x) {
+	            if (!arguments.length) {
+	                return isHorizontal;
+	            }
+	            isHorizontal = _x;
 	
 	            return this;
 	        };
@@ -2096,11 +2114,46 @@ webpackJsonp([0,10],[
 	         * @return { boolean | module} Is color list being reversed
 	         * @public
 	         */
+	        exports.shouldReverseColorList = function (_x) {
+	            if (!arguments.length) {
+	                return shouldReverseColorList;
+	            }
+	            shouldReverseColorList = _x;
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets whether the color list should be reversed or not
+	         * @param  {boolean} _x     Should reverse the color list
+	         * @return { boolean | module} Is color list being reversed
+	         * @deprecated
+	         */
 	        exports.reverseColorList = function (_x) {
 	            if (!arguments.length) {
-	                return reverseColorList;
+	                return shouldReverseColorList;
 	            }
-	            reverseColorList = _x;
+	            shouldReverseColorList = _x;
+	            console.log('We are deprecating the .reverseColorList() accessor, use .shouldReverseColorList() instead');
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets the hasPercentage status
+	         * @param  {boolean} _x     Should use percentage as value format
+	         * @return { boolean | module} Is percentage used or Chart module to chain calls
+	         * @public
+	         */
+	        exports.hasPercentage = function (_x) {
+	            if (!arguments.length) {
+	                return valueLabelFormat === PERCENTAGE_FORMAT;
+	            }
+	            if (_x) {
+	                valueLabelFormat = PERCENTAGE_FORMAT;
+	            } else {
+	                valueLabelFormat = NUMBER_FORMAT;
+	            }
 	
 	            return this;
 	        };
@@ -2108,7 +2161,7 @@ webpackJsonp([0,10],[
 	        /**
 	         * Gets or Sets the valueLabelFormat to a percentage format if true (default false)
 	         * @param  {boolean} _x     Should use percentage as value format
-	         * @return { valueLabelFormat | module} Is percentage value format used or Chart module to chain calls
+	         * @return { boolean | module} Is percentage the value format used or Chart module to chain calls
 	         * @public
 	         */
 	        exports.usePercentage = function (_x) {
@@ -7830,6 +7883,7 @@ webpackJsonp([0,10],[
 	
 	    /**
 	     * Wraps a selection of text within the available width
+	     * @param  {Number} xOffset        X axis offset for the text
 	     * @param  {Number} fontSize       Size of the base font
 	     * @param  {Number} availableWidth Width of the container where the text needs to wrap on
 	     * @param  {D3Selection} node      SVG text element that contains the text to wrap
@@ -7838,7 +7892,7 @@ webpackJsonp([0,10],[
 	     * More discussions on https://github.com/mbostock/d3/issues/1642
 	     * @return {void}
 	     */
-	    var wrapText = function wrapText(xOffset, fontSize, availableWidth, node, data, i) {
+	    var wrapText = function wrapText(xOffset, fontSize, availableWidth, node) {
 	        var text = d3Selection.select(node),
 	            words = text.text().split(/\s+/).reverse(),
 	            word = void 0,
@@ -8021,8 +8075,9 @@ webpackJsonp([0,10],[
 	        d3svg.attr('version', 1.1).attr('xmlns', 'http://www.w3.org/2000/svg');
 	        var serializer = serializeWithStyles.initializeSerializer();
 	        var html = serializer(d3svg.node());
+	
 	        html = formatHtmlByBrowser(html);
-	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width')));
+	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width'), 10));
 	        html = addBackground(html);
 	
 	        return html;
@@ -8127,6 +8182,7 @@ webpackJsonp([0,10],[
 	        }
 	        var britechartsGreySchema = colorSchemas.britechartsGreySchema;
 	
+	
 	        html = html.replace(/<g/, '<text x="' + this.margin().left + '" y="' + config.titleTopOffset + '" font-family="' + config.titleFontFamily + '" font-size="' + config.titleFontSize + '" fill="' + britechartsGreySchema[6] + '"> ' + title + ' </text><g ');
 	
 	        return html;
@@ -8146,7 +8202,7 @@ webpackJsonp([0,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	
 	    // Color Gradients
 	    var britechartGradients = {
@@ -8230,7 +8286,8 @@ webpackJsonp([0,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	
 	    var axisTimeCombinations = {
 	        MINUTE_HOUR: 'minute-hour',
 	        HOUR_DAY: 'hour-daymonth',
@@ -8315,7 +8372,8 @@ webpackJsonp([0,10],[
 	                    result = void 0;
 	
 	                if (!elem || elem.nodeType !== Node.ELEMENT_NODE) {
-	                    console.error('Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE');
+	                    // 'Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE'
+	
 	                    return;
 	                }
 	
@@ -8643,10 +8701,9 @@ webpackJsonp([0,10],[
 	         * This function creates the graph using the selection as container
 	         * @param {D3Selection} _selection A d3 selection that represents
 	         *                                  the container(s) where the chart(s) will be rendered
-	         * @param {Array} _data The data to attach and generate the chart (usually an empty array)
 	         */
 	        function exports(_selection) {
-	            _selection.each(function (_data) {
+	            _selection.each(function () {
 	                chartWidth = width - margin.left - margin.right;
 	                chartHeight = height - margin.top - margin.bottom;
 	

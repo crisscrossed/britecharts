@@ -7071,8 +7071,9 @@ webpackJsonp([3,10],[
 	        d3svg.attr('version', 1.1).attr('xmlns', 'http://www.w3.org/2000/svg');
 	        var serializer = serializeWithStyles.initializeSerializer();
 	        var html = serializer(d3svg.node());
+	
 	        html = formatHtmlByBrowser(html);
-	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width')));
+	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width'), 10));
 	        html = addBackground(html);
 	
 	        return html;
@@ -7177,6 +7178,7 @@ webpackJsonp([3,10],[
 	        }
 	        var britechartsGreySchema = colorSchemas.britechartsGreySchema;
 	
+	
 	        html = html.replace(/<g/, '<text x="' + this.margin().left + '" y="' + config.titleTopOffset + '" font-family="' + config.titleFontFamily + '" font-size="' + config.titleFontSize + '" fill="' + britechartsGreySchema[6] + '"> ' + title + ' </text><g ');
 	
 	        return html;
@@ -7196,7 +7198,7 @@ webpackJsonp([3,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	
 	    // Color Gradients
 	    var britechartGradients = {
@@ -7280,7 +7282,8 @@ webpackJsonp([3,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	
 	    var axisTimeCombinations = {
 	        MINUTE_HOUR: 'minute-hour',
 	        HOUR_DAY: 'hour-daymonth',
@@ -7365,7 +7368,8 @@ webpackJsonp([3,10],[
 	                    result = void 0;
 	
 	                if (!elem || elem.nodeType !== Node.ELEMENT_NODE) {
-	                    console.error('Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE');
+	                    // 'Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE'
+	
 	                    return;
 	                }
 	
@@ -9382,7 +9386,7 @@ webpackJsonp([3,10],[
 	            categoryColorMap = void 0,
 	            layers = void 0,
 	            ease = d3Ease.easeQuadInOut,
-	            horizontal = false,
+	            isHorizontal = false,
 	            svg = void 0,
 	            chartWidth = void 0,
 	            chartHeight = void 0,
@@ -9476,7 +9480,7 @@ webpackJsonp([3,10],[
 	         * @private
 	         */
 	        function buildAxis() {
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                xAxis = d3Axis.axisBottom(xScale).ticks(numOfHorizontalTicks, valueLabelFormat);
 	                yAxis = d3Axis.axisLeft(yScale);
 	            } else {
@@ -9526,7 +9530,7 @@ webpackJsonp([3,10],[
 	        function buildScales() {
 	            var yMax = d3Array.max(data.map(getValue));
 	
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                xScale = d3Scale.scaleLinear().domain([0, yMax]).rangeRound([0, chartWidth - 1]);
 	                // 1 pix for edge tick
 	
@@ -9591,7 +9595,7 @@ webpackJsonp([3,10],[
 	         * @private
 	         */
 	        function drawAxis() {
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                svg.select('.x-axis-group .axis.x').attr('transform', 'translate( 0, ' + chartHeight + ' )').call(xAxis);
 	
 	                svg.select('.y-axis-group.axis').attr('transform', 'translate( ' + -xAxisPadding.left + ', 0)').call(yAxis);
@@ -9623,7 +9627,7 @@ webpackJsonp([3,10],[
 	         * @return void
 	         */
 	        function drawGridLines() {
-	            var scale = horizontal ? xScale : yScale;
+	            var scale = isHorizontal ? xScale : yScale;
 	
 	            if (grid === 'horizontal' || grid === 'full') {
 	                svg.select('.grid-lines-group').selectAll('line.horizontal-grid-line').data(scale.ticks(numOfVerticalTicks).slice(1)).enter().append('line').attr('class', 'horizontal-grid-line').attr('x1', -xAxisPadding.left + 1).attr('x2', chartWidth).attr('y1', function (d) {
@@ -9641,7 +9645,7 @@ webpackJsonp([3,10],[
 	                });
 	            }
 	
-	            if (horizontal) {
+	            if (isHorizontal) {
 	                drawVerticalExtendedLine();
 	            } else {
 	                drawHorizontalExtendedLine();
@@ -9715,10 +9719,10 @@ webpackJsonp([3,10],[
 	        function drawGroupedBar() {
 	            var series = svg.select('.chart-group').selectAll('.layer');
 	
-	            if (!horizontal) {
-	                drawVerticalBars(series);
-	            } else {
+	            if (isHorizontal) {
 	                drawHorizontalBars(series);
+	            } else {
+	                drawVerticalBars(series);
 	            }
 	            // Exit
 	            series.exit().transition().style('opacity', 0).remove();
@@ -9816,13 +9820,13 @@ webpackJsonp([3,10],[
 	                _getMousePosition2 = _slicedToArray(_getMousePosition, 2),
 	                mouseX = _getMousePosition2[0],
 	                mouseY = _getMousePosition2[1],
-	                dataPoint = !horizontal ? getNearestDataPoint(mouseX) : getNearestDataPoint2(mouseY),
+	                dataPoint = isHorizontal ? getNearestDataPoint2(mouseY) : getNearestDataPoint(mouseX),
 	                x = void 0,
 	                y = void 0;
 	
 	            if (dataPoint) {
 	                // Move verticalMarker to that datapoint
-	                if (horizontal) {
+	                if (isHorizontal) {
 	                    x = mouseX - margin.left;
 	                    y = yScale(dataPoint.key) + yScale.bandwidth() / 2;
 	                } else {
@@ -10023,14 +10027,30 @@ webpackJsonp([3,10],[
 	        /**
 	         * Gets or Sets the horizontal direction of the chart
 	         * @param  {number} _x Desired horizontal direction for the graph
-	         * @return { horizontal | module} Current horizontal direction or Bar Chart module to chain calls
+	         * @return { isHorizontal | module} If it is horizontal or Bar Chart module to chain calls
 	         * @public
+	         */
+	        exports.isHorizontal = function (_x) {
+	            if (!arguments.length) {
+	                return isHorizontal;
+	            }
+	            isHorizontal = _x;
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets the horizontal direction of the chart
+	         * @param  {number} _x Desired horizontal direction for the chart
+	         * @return { isHorizontal | module} If it is horizontal or module to chain calls
+	         * @deprecated
 	         */
 	        exports.horizontal = function (_x) {
 	            if (!arguments.length) {
-	                return horizontal;
+	                return isHorizontal;
 	            }
-	            horizontal = _x;
+	            isHorizontal = _x;
+	            console.log('We are deprecating the .horizontal() accessor, use .isHorizontal() instead');
 	
 	            return this;
 	        };
@@ -10917,6 +10937,7 @@ webpackJsonp([3,10],[
 	            width = 250,
 	            height = 45,
 	            title = 'Tooltip title',
+	            valueFormat = null,
 	
 	
 	        // tooltip
@@ -11043,17 +11064,18 @@ webpackJsonp([3,10],[
 	         * @return {Number}       Formatted value
 	         */
 	        function getFormattedValue(value) {
+	            var valueFormatter = formatDecimalValue;
+	
 	            if (!value) {
 	                return 0;
 	            }
-	
-	            if (isInteger(value)) {
-	                value = formatIntegerValue(value);
-	            } else {
-	                value = formatDecimalValue(value);
+	            if (valueFormat) {
+	                valueFormatter = d3Format.format(valueFormat);
+	            } else if (isInteger(value)) {
+	                valueFormatter = formatIntegerValue;
 	            }
 	
-	            return value;
+	            return valueFormatter(value);
 	        }
 	
 	        /**
@@ -11216,7 +11238,7 @@ webpackJsonp([3,10],[
 	        function _sortByForceOrder(topics) {
 	            var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : forceOrder;
 	
-	            return forceOrder.map(function (orderName) {
+	            return order.map(function (orderName) {
 	                return topics.filter(function (_ref3) {
 	                    var name = _ref3.name;
 	                    return name === orderName;
@@ -11327,20 +11349,13 @@ webpackJsonp([3,10],[
 	        }
 	
 	        // API
-	        /**
-	        * Gets or Sets the nameLabel of the data
-	        * @param  {Number} _x Desired nameLabel
-	        * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
-	        * @public
-	        */
-	        exports.nameLabel = function (_x) {
-	            if (!arguments.length) {
-	                return nameLabel;
-	            }
-	            nameLabel = _x;
 	
-	            return this;
-	        };
+	        /**
+	         * constants to be used to force the x axis to respect a certain granularity
+	         * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
+	         * @example tooltip.forceDateRange(tooltip.axisTimeCombinations.HOUR_DAY)
+	         */
+	        exports.axisTimeCombinations = axisTimeCombinations;
 	
 	        /**
 	         * Gets or Sets the dateLabel of the data
@@ -11358,31 +11373,15 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Gets or Sets the valueLabel of the data
-	         * @param  {Number} _x Desired valueLabel
-	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
-	         * @public
+	         * Exposes the ability to force the tooltip to use a certain date format
+	         * @param  {String} _x Desired format
+	         * @return { (String|Module) }    Current format or module to chain calls
 	         */
-	        exports.valueLabel = function (_x) {
+	        exports.forceDateRange = function (_x) {
 	            if (!arguments.length) {
-	                return valueLabel;
+	                return forceAxisSettings || defaultAxisSettings;
 	            }
-	            valueLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the topicLabel of the data
-	         * @param  {Number} _x Desired topicLabel
-	         * @return { topicLabel | module} Current topicLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.topicLabel = function (_x) {
-	            if (!arguments.length) {
-	                return topicLabel;
-	            }
-	            topicLabel = _x;
+	            forceAxisSettings = _x;
 	
 	            return this;
 	        };
@@ -11399,12 +11398,56 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
+	         * Pass locale for the tooltip to render the date in
+	         * @param  {String} _x  must be a locale tag like 'en-US' or 'fr-FR'
+	         * @return { (String|Module) }    Current locale or module to chain calls
+	         */
+	        exports.locale = function (_x) {
+	            if (!arguments.length) {
+	                return locale;
+	            }
+	            locale = _x;
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets the nameLabel of the data
+	         * @param  {Number} _x Desired nameLabel
+	         * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
+	         * @public
+	         */
+	        exports.nameLabel = function (_x) {
+	            if (!arguments.length) {
+	                return nameLabel;
+	            }
+	            nameLabel = _x;
+	
+	            return this;
+	        };
+	
+	        /**
 	         * Shows the tooltip
 	         * @return {Module} Tooltip module to chain calls
 	         * @public
 	         */
 	        exports.show = function () {
 	            svg.style('display', 'block');
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Pass an override for the ordering of your tooltip
+	         * @param  {Object[]} _x    Array of the names of your tooltip items
+	         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
+	         * @public
+	         */
+	        exports.forceOrder = function (_x) {
+	            if (!arguments.length) {
+	                return forceOrder;
+	            }
+	            forceOrder = _x;
 	
 	            return this;
 	        };
@@ -11425,16 +11468,16 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Pass an override for the ordering of your tooltip
-	         * @param  {Object[]} _x    Array of the names of your tooltip items
-	         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
+	         * Gets or Sets the topicLabel of the data
+	         * @param  {Number} _x Desired topicLabel
+	         * @return { topicLabel | module} Current topicLabel or Chart module to chain calls
 	         * @public
 	         */
-	        exports.forceOrder = function (_x) {
+	        exports.topicLabel = function (_x) {
 	            if (!arguments.length) {
-	                return forceOrder;
+	                return topicLabel;
 	            }
-	            forceOrder = _x;
+	            topicLabel = _x;
 	
 	            return this;
 	        };
@@ -11457,39 +11500,34 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Exposes the ability to force the tooltip to use a certain date format
-	         * @param  {String} _x Desired format
-	         * @return { (String|Module) }    Current format or module to chain calls
+	         * Gets or Sets the valueFormat of the tooltip
+	         * @param  {String} _x Desired valueFormat
+	         * @return { String | module} Current valueFormat or module to chain calls
+	         * @public
 	         */
-	        exports.forceDateRange = function (_x) {
+	        exports.valueFormat = function (_x) {
 	            if (!arguments.length) {
-	                return forceAxisSettings || defaultAxisSettings;
+	                return valueFormat;
 	            }
-	            forceAxisSettings = _x;
+	            valueFormat = _x;
 	
 	            return this;
 	        };
 	
 	        /**
-	         * Pass locale for the tooltip to render the date in
-	         * @param  {String} _x  must be a locale tag like 'en-US' or 'fr-FR'
-	         * @return { (String|Module) }    Current locale or module to chain calls
+	         * Gets or Sets the valueLabel of the data
+	         * @param  {Number} _x Desired valueLabel
+	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
+	         * @public
 	         */
-	        exports.locale = function (_x) {
+	        exports.valueLabel = function (_x) {
 	            if (!arguments.length) {
-	                return locale;
+	                return valueLabel;
 	            }
-	            locale = _x;
+	            valueLabel = _x;
 	
 	            return this;
 	        };
-	
-	        /**
-	         * constants to be used to force the x axis to respect a certain granularity
-	         * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
-	         * @example tooltip.forceDateRange(tooltip.axisTimeCombinations.HOUR_DAY)
-	         */
-	        exports.axisTimeCombinations = axisTimeCombinations;
 	
 	        return exports;
 	    };

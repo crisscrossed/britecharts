@@ -7180,8 +7180,9 @@ webpackJsonp([5,10],[
 	        d3svg.attr('version', 1.1).attr('xmlns', 'http://www.w3.org/2000/svg');
 	        var serializer = serializeWithStyles.initializeSerializer();
 	        var html = serializer(d3svg.node());
+	
 	        html = formatHtmlByBrowser(html);
-	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width')));
+	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width'), 10));
 	        html = addBackground(html);
 	
 	        return html;
@@ -7286,6 +7287,7 @@ webpackJsonp([5,10],[
 	        }
 	        var britechartsGreySchema = colorSchemas.britechartsGreySchema;
 	
+	
 	        html = html.replace(/<g/, '<text x="' + this.margin().left + '" y="' + config.titleTopOffset + '" font-family="' + config.titleFontFamily + '" font-size="' + config.titleFontSize + '" fill="' + britechartsGreySchema[6] + '"> ' + title + ' </text><g ');
 	
 	        return html;
@@ -7305,7 +7307,7 @@ webpackJsonp([5,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	
 	    // Color Gradients
 	    var britechartGradients = {
@@ -7389,7 +7391,8 @@ webpackJsonp([5,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	
 	    var axisTimeCombinations = {
 	        MINUTE_HOUR: 'minute-hour',
 	        HOUR_DAY: 'hour-daymonth',
@@ -7474,7 +7477,8 @@ webpackJsonp([5,10],[
 	                    result = void 0;
 	
 	                if (!elem || elem.nodeType !== Node.ELEMENT_NODE) {
-	                    console.error('Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE');
+	                    // 'Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE'
+	
 	                    return;
 	                }
 	
@@ -9637,7 +9641,7 @@ webpackJsonp([5,10],[
 	         * @return {void}
 	         */
 	        function updateHandlers(dateExtent) {
-	            if (dateExtent == null) {
+	            if (dateExtent === null) {
 	                handle.attr('display', 'none');
 	            } else {
 	                handle.attr('display', null).attr('transform', function (d, i) {
@@ -12906,6 +12910,7 @@ webpackJsonp([5,10],[
 	            width = 250,
 	            height = 45,
 	            title = 'Tooltip title',
+	            valueFormat = null,
 	
 	
 	        // tooltip
@@ -13032,17 +13037,18 @@ webpackJsonp([5,10],[
 	         * @return {Number}       Formatted value
 	         */
 	        function getFormattedValue(value) {
+	            var valueFormatter = formatDecimalValue;
+	
 	            if (!value) {
 	                return 0;
 	            }
-	
-	            if (isInteger(value)) {
-	                value = formatIntegerValue(value);
-	            } else {
-	                value = formatDecimalValue(value);
+	            if (valueFormat) {
+	                valueFormatter = d3Format.format(valueFormat);
+	            } else if (isInteger(value)) {
+	                valueFormatter = formatIntegerValue;
 	            }
 	
-	            return value;
+	            return valueFormatter(value);
 	        }
 	
 	        /**
@@ -13205,7 +13211,7 @@ webpackJsonp([5,10],[
 	        function _sortByForceOrder(topics) {
 	            var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : forceOrder;
 	
-	            return forceOrder.map(function (orderName) {
+	            return order.map(function (orderName) {
 	                return topics.filter(function (_ref3) {
 	                    var name = _ref3.name;
 	                    return name === orderName;
@@ -13316,20 +13322,13 @@ webpackJsonp([5,10],[
 	        }
 	
 	        // API
-	        /**
-	        * Gets or Sets the nameLabel of the data
-	        * @param  {Number} _x Desired nameLabel
-	        * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
-	        * @public
-	        */
-	        exports.nameLabel = function (_x) {
-	            if (!arguments.length) {
-	                return nameLabel;
-	            }
-	            nameLabel = _x;
 	
-	            return this;
-	        };
+	        /**
+	         * constants to be used to force the x axis to respect a certain granularity
+	         * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
+	         * @example tooltip.forceDateRange(tooltip.axisTimeCombinations.HOUR_DAY)
+	         */
+	        exports.axisTimeCombinations = axisTimeCombinations;
 	
 	        /**
 	         * Gets or Sets the dateLabel of the data
@@ -13347,31 +13346,15 @@ webpackJsonp([5,10],[
 	        };
 	
 	        /**
-	         * Gets or Sets the valueLabel of the data
-	         * @param  {Number} _x Desired valueLabel
-	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
-	         * @public
+	         * Exposes the ability to force the tooltip to use a certain date format
+	         * @param  {String} _x Desired format
+	         * @return { (String|Module) }    Current format or module to chain calls
 	         */
-	        exports.valueLabel = function (_x) {
+	        exports.forceDateRange = function (_x) {
 	            if (!arguments.length) {
-	                return valueLabel;
+	                return forceAxisSettings || defaultAxisSettings;
 	            }
-	            valueLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the topicLabel of the data
-	         * @param  {Number} _x Desired topicLabel
-	         * @return { topicLabel | module} Current topicLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.topicLabel = function (_x) {
-	            if (!arguments.length) {
-	                return topicLabel;
-	            }
-	            topicLabel = _x;
+	            forceAxisSettings = _x;
 	
 	            return this;
 	        };
@@ -13388,12 +13371,56 @@ webpackJsonp([5,10],[
 	        };
 	
 	        /**
+	         * Pass locale for the tooltip to render the date in
+	         * @param  {String} _x  must be a locale tag like 'en-US' or 'fr-FR'
+	         * @return { (String|Module) }    Current locale or module to chain calls
+	         */
+	        exports.locale = function (_x) {
+	            if (!arguments.length) {
+	                return locale;
+	            }
+	            locale = _x;
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Gets or Sets the nameLabel of the data
+	         * @param  {Number} _x Desired nameLabel
+	         * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
+	         * @public
+	         */
+	        exports.nameLabel = function (_x) {
+	            if (!arguments.length) {
+	                return nameLabel;
+	            }
+	            nameLabel = _x;
+	
+	            return this;
+	        };
+	
+	        /**
 	         * Shows the tooltip
 	         * @return {Module} Tooltip module to chain calls
 	         * @public
 	         */
 	        exports.show = function () {
 	            svg.style('display', 'block');
+	
+	            return this;
+	        };
+	
+	        /**
+	         * Pass an override for the ordering of your tooltip
+	         * @param  {Object[]} _x    Array of the names of your tooltip items
+	         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
+	         * @public
+	         */
+	        exports.forceOrder = function (_x) {
+	            if (!arguments.length) {
+	                return forceOrder;
+	            }
+	            forceOrder = _x;
 	
 	            return this;
 	        };
@@ -13414,16 +13441,16 @@ webpackJsonp([5,10],[
 	        };
 	
 	        /**
-	         * Pass an override for the ordering of your tooltip
-	         * @param  {Object[]} _x    Array of the names of your tooltip items
-	         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
+	         * Gets or Sets the topicLabel of the data
+	         * @param  {Number} _x Desired topicLabel
+	         * @return { topicLabel | module} Current topicLabel or Chart module to chain calls
 	         * @public
 	         */
-	        exports.forceOrder = function (_x) {
+	        exports.topicLabel = function (_x) {
 	            if (!arguments.length) {
-	                return forceOrder;
+	                return topicLabel;
 	            }
-	            forceOrder = _x;
+	            topicLabel = _x;
 	
 	            return this;
 	        };
@@ -13446,39 +13473,34 @@ webpackJsonp([5,10],[
 	        };
 	
 	        /**
-	         * Exposes the ability to force the tooltip to use a certain date format
-	         * @param  {String} _x Desired format
-	         * @return { (String|Module) }    Current format or module to chain calls
+	         * Gets or Sets the valueFormat of the tooltip
+	         * @param  {String} _x Desired valueFormat
+	         * @return { String | module} Current valueFormat or module to chain calls
+	         * @public
 	         */
-	        exports.forceDateRange = function (_x) {
+	        exports.valueFormat = function (_x) {
 	            if (!arguments.length) {
-	                return forceAxisSettings || defaultAxisSettings;
+	                return valueFormat;
 	            }
-	            forceAxisSettings = _x;
+	            valueFormat = _x;
 	
 	            return this;
 	        };
 	
 	        /**
-	         * Pass locale for the tooltip to render the date in
-	         * @param  {String} _x  must be a locale tag like 'en-US' or 'fr-FR'
-	         * @return { (String|Module) }    Current locale or module to chain calls
+	         * Gets or Sets the valueLabel of the data
+	         * @param  {Number} _x Desired valueLabel
+	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
+	         * @public
 	         */
-	        exports.locale = function (_x) {
+	        exports.valueLabel = function (_x) {
 	            if (!arguments.length) {
-	                return locale;
+	                return valueLabel;
 	            }
-	            locale = _x;
+	            valueLabel = _x;
 	
 	            return this;
 	        };
-	
-	        /**
-	         * constants to be used to force the x axis to respect a certain granularity
-	         * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
-	         * @example tooltip.forceDateRange(tooltip.axisTimeCombinations.HOUR_DAY)
-	         */
-	        exports.axisTimeCombinations = axisTimeCombinations;
 	
 	        return exports;
 	    };
@@ -13935,6 +13957,7 @@ webpackJsonp([5,10],[
 	            colorScale = d3Scale.scaleOrdinal().range(colorSchema).domain(dataByTopic.map(getTopic));
 	
 	            var range = colorScale.range();
+	
 	            topicColorMap = colorScale.domain().reduce(function (memo, item, i) {
 	                memo[item] = range[i];
 	

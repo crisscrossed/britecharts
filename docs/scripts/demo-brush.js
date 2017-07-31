@@ -4,19 +4,19 @@ webpackJsonp([1,10],[
 
 	'use strict';
 	
-	var d3Selection = __webpack_require__(1),
-	    d3TimeFormat = __webpack_require__(14),
-	    PubSub = __webpack_require__(2),
-	    brush = __webpack_require__(30),
-	    dataBuilder = __webpack_require__(36);
-	__webpack_require__(29);
+	var d3Selection = __webpack_require__(1);
+	var d3TimeFormat = __webpack_require__(14);
+	var PubSub = __webpack_require__(2);
+	
+	var brush = __webpack_require__(30);
+	var dataBuilder = __webpack_require__(36);
 	
 	function createBrushChart() {
 	    var brushChart = brush(),
 	        testDataSet = new dataBuilder.BrushDataBuilder(),
 	        brushContainer = d3Selection.select('.js-brush-chart-container'),
 	        containerWidth = brushContainer.node() ? brushContainer.node().getBoundingClientRect().width : false,
-	        dataset;
+	        dataset = void 0;
 	
 	    if (containerWidth) {
 	        dataset = testDataSet.withSimpleData().build();
@@ -6934,7 +6934,7 @@ webpackJsonp([1,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
 	
 	    // Color Gradients
 	    var britechartGradients = {
@@ -7018,7 +7018,8 @@ webpackJsonp([1,10],[
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
+	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	
 	    var axisTimeCombinations = {
 	        MINUTE_HOUR: 'minute-hour',
 	        HOUR_DAY: 'hour-daymonth',
@@ -8601,27 +8602,7 @@ webpackJsonp([1,10],[
 /***/ }),
 /* 27 */,
 /* 28 */,
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _ = __webpack_require__(26),
-	    d3Selection = __webpack_require__(1),
-	    PubSub = __webpack_require__(2),
-	    debounceDelay = 200,
-	    cachedWidth = window.innerWidth;
-	
-	d3Selection.select(window).on('resize', _.debounce(function () {
-	    var newWidth = window.innerWidth;
-	
-	    if (cachedWidth !== newWidth) {
-	        cachedWidth = newWidth;
-	        PubSub.publish('resize');
-	    }
-	}, debounceDelay));
-
-/***/ }),
+/* 29 */,
 /* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -8985,7 +8966,7 @@ webpackJsonp([1,10],[
 	         * @return {void}
 	         */
 	        function updateHandlers(dateExtent) {
-	            if (dateExtent == null) {
+	            if (dateExtent === null) {
 	                handle.attr('display', 'none');
 	            } else {
 	                handle.attr('display', null).attr('transform', function (d, i) {
