@@ -245,7 +245,7 @@ define(function(require){
             //     value = formatDecimalValue(value);
             // }
             if (value > 1000) {
-                return String(parseFloat(value / 100000000).toFixed(2)) + ' Mio.'
+                return String(Math.round(value / 10000000)) + ' Mio.'
             } else {
                 return value
             }
@@ -331,7 +331,7 @@ define(function(require){
                 .attr('y', ttTextY)
                 .style('fill', tooltipTextColor)
                 .text(tooltipLeftText)
-                .call(textWrap, tooltipMaxTopicLength, -25);
+                .call(textWrap, tooltipMaxTopicLength, -20);
 
             tooltipRight = tooltipBody
                 .append('text')

@@ -249,7 +249,16 @@ define(function(require){
             // } else {
             //     format = formatDecimalValue;
             // }
-            return String(value / 10000000) + ' Mio.'
+            let newValue
+            // Milliarde
+            if (value > 100000000) {
+                newValue = String(value / 10000000) + ' Mio.'
+            }
+
+            if (value < 10000000) {
+                newValue = String(value / 1000000) + ' Mio.'
+            }
+            return newValue
             // return format(value);
         }
 
