@@ -248,9 +248,9 @@ define(function(require){
             //     value = formatDecimalValue(value);
             // }
             if (value > 1000) {
-                return String(Math.round(value / 10000000)) + ' Mio.'
+               return String(Math.round(value / 1000000)) + ' Mio.'
             } else {
-                return value
+               return value
             }
         }
 

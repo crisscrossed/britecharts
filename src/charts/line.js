@@ -250,13 +250,8 @@ define(function(require){
             //     format = formatDecimalValue;
             // }
             let newValue
-            // Milliarde
-            if (value > 100000000) {
-                newValue = String(value / 10000000) + ' Mio.'
-            }
-
-            if (value < 10000000) {
-                newValue = String(value / 1000000) + ' Mio.'
+            if (value > 1000) {
+              newValue = String(value / 1000000) + ' Mio.'
             }
             return newValue
             // return format(value);
@@ -376,7 +371,7 @@ define(function(require){
                 .domain(dataByTopic.map(getTopic));
 
             let range = colorScale.range();
-            
+
             topicColorMap = colorScale.domain().reduce((memo, item, i) => {
                 memo[item] = range[i];
 
