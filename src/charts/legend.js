@@ -315,8 +315,8 @@ define(function(require){
                 .selectAll('g.legend-line')
                 .selectAll('g.legend-entry')
               .append('text')
-                .classed('legend-entry-value', true)
-                .text(getFormattedQuantity)
+                // .classed('legend-entry-value', true)
+                // .text(getFormattedQuantity)
                 .attr('x', chartWidth - valueReservedSpace)
                 .style('font-size', `${textSize}px`)
                 .style('letter-spacing', `${numberLetterSpacing}px`)
@@ -440,7 +440,7 @@ define(function(require){
          * @param  {number} _x Desired horizontal direction for the chart
          * @return { isHorizontal | module} If it is horizontal or module to chain calls
          * @deprecated
-         */        
+         */
         exports.horizontal = function (_x) {
             if (!arguments.length) {
                 return isHorizontal;
