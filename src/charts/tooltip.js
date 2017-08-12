@@ -408,7 +408,7 @@ define(function(require){
          * @return {Function} The proper date formatting function
          */
         function formatDate(date) {
-            let settings = forceAxisSettings || defaultAxisSettings;
+            let settings = dateFormat || defaultAxisSettings;
             let format = null;
             let localeOptions = {month:'short', day:'numeric'};
 
@@ -438,7 +438,7 @@ define(function(require){
          * @param  {Object[]} order     Array of names in the order to sort topics by
          * @return {Object[]}           sorted topics object
          */
-        function _sortByForceOrder(topics, order=forceOrder) {
+        function _sortByTopicsOrder(topics, order=topicsOrder) {
             return order.map((orderName) => topics.filter(({name}) => name === orderName)[0]);
         }
 
@@ -567,7 +567,7 @@ define(function(require){
         /**
          * constants to be used to force the x axis to respect a certain granularity
          * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
-         * @example tooltip.forceDateRange(tooltip.axisTimeCombinations.HOUR_DAY)
+         * @example tooltip.dateFormat(tooltip.axisTimeCombinations.HOUR_DAY)
          */
         exports.axisTimeCombinations = axisTimeCombinations;
 
@@ -591,11 +591,11 @@ define(function(require){
          * @param  {String} _x Desired format
          * @return { (String|Module) }    Current format or module to chain calls
          */
-        exports.forceDateRange = function(_x) {
+        exports.dateFormat = function(_x) {
             if (!arguments.length) {
-              return forceAxisSettings || defaultAxisSettings;
+              return dateFormat || defaultAxisSettings;
             }
-            forceAxisSettings = _x;
+            dateFormat = _x;
 
             return this;
         };

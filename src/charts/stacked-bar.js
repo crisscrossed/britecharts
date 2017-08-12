@@ -12,6 +12,7 @@ define(function(require){
     const d3Shape = require('d3-shape');
     const d3Selection = require('d3-selection');
     const assign = require('lodash.assign');
+    const d3Transition = require('d3-transition');
 
     const {exportChart} = require('./helpers/exportChart');
     const colorHelper = require('./helpers/colors');
@@ -82,15 +83,14 @@ define(function(require){
 
             aspectRatio = null,
 
-            verticalTicks = 5,
             yTickTextYOffset = -8,
             yTickTextXOffset = -20,
 
-            numOfVerticalTicks = 5,
-            numOfHorizontalTicks = 5,
+            yTicks = 5,
+            xTicks = 5,
             percentageAxisToMaxRatio = 1,
 
-            colorSchema = colorHelper.colorSchemas.britechartsColorSchema,
+            colorSchema = colorHelper.colorSchemas.britecharts,
 
             colorScale,
             categoryColorMap,
@@ -169,9 +169,15 @@ define(function(require){
         function addMouseEvents() {
             if (shouldShowTooltip()){
                 svg
-                    .on('mouseover', handleMouseOver)
-                    .on('mouseout', handleMouseOut)
-                    .on('mousemove', handleMouseMove);
+                    .on('mouseover', function(d) {
+                        handleMouseOver(this, d);
+                    })
+                    .on('mouseout', function(d) {
+                        handleMouseOut(this, d);
+                    })
+                    .on('mousemove',  function(d) {
+                        handleMouseMove(this, d);
+                    });
             }
 
             svg.selectAll('.bar')
@@ -196,12 +202,12 @@ define(function(require){
         function buildAxis() {
             if (isHorizontal) {
                 xAxis = d3Axis.axisBottom(xScale)
-                    .ticks(numOfHorizontalTicks, valueLabelFormat);
+                    .ticks(xTicks, valueLabelFormat);
                 yAxis = d3Axis.axisLeft(yScale)
             } else {
                 xAxis = d3Axis.axisBottom(xScale)
                 yAxis = d3Axis.axisLeft(yScale)
-                    .ticks(numOfVerticalTicks, valueLabelFormat)
+                    .ticks(yTicks, valueLabelFormat)
             }
         }
 
@@ -371,7 +377,7 @@ define(function(require){
             if (grid === 'horizontal' || grid === 'full') {
                 svg.select('.grid-lines-group')
                     .selectAll('line.horizontal-grid-line')
-                    .data(scale.ticks(numOfVerticalTicks).slice(1))
+                    .data(scale.ticks(yTicks).slice(1))
                     .enter()
                       .append('line')
                         .attr('class', 'horizontal-grid-line')
@@ -384,7 +390,7 @@ define(function(require){
             if (grid === 'vertical' || grid === 'full') {
                 svg.select('.grid-lines-group')
                     .selectAll('line.vertical-grid-line')
-                    .data(scale.ticks(numOfHorizontalTicks).slice(1))
+                    .data(scale.ticks(xTicks).slice(1))
                     .enter()
                       .append('line')
                         .attr('class', 'vertical-grid-line')
@@ -618,8 +624,8 @@ define(function(require){
          * and updates metadata related to it
          * @private
          */
-        function handleMouseMove(){
-            let [mouseX, mouseY] = getMousePosition(this),
+        function handleMouseMove(e, d){
+            let [mouseX, mouseY] = getMousePosition(e),
                 dataPoint = isHorizontal ? getNearestDataPoint2(mouseY) : getNearestDataPoint(mouseX),
                 x,
                 y;
@@ -636,7 +642,7 @@ define(function(require){
                 moveTooltipOriginXY(x,y);
 
                 // Emit event with xPosition for tooltip or similar feature
-                dispatcher.call('customMouseMove', this, dataPoint, categoryColorMap, x,y);
+                dispatcher.call('customMouseMove', e, dataPoint, categoryColorMap, x, y);
             }
         }
 
@@ -645,18 +651,18 @@ define(function(require){
          * It also resets the container of the vertical marker
          * @private
          */
-        function handleMouseOut(d){
+        function handleMouseOut(e, d) {
             svg.select('.metadata-group').attr('transform', 'translate(9999, 0)');
-            dispatcher.call('customMouseOut', this, d);
+            dispatcher.call('customMouseOut', e, d, d3Selection.mouse(e));
         }
 
         /**
          * Mouseover handler, shows overlay and adds active class to verticalMarkerLine
          * @private
          */
-        function handleMouseOver(d){
-            dispatcher.call('customMouseOver', this, d);
-        }
+         function handleMouseOver(e, d) {
+             dispatcher.call('customMouseOver', e, d, d3Selection.mouse(e));
+         }
 
         /**
          * Helper method to update the x position of the vertical marker
@@ -800,7 +806,7 @@ define(function(require){
          * @param  {number} _x Desired horizontal direction for the chart
          * @return { isHorizontal | module} If it is horizontal or module to chain calls
          * @deprecated
-         */        
+         */
         exports.horizontal = function (_x) {
             if (!arguments.length) {
                 return isHorizontal;
@@ -874,31 +880,32 @@ define(function(require){
         };
 
         /**
-         * Gets or Sets the number of verticalTicks of the axis on the chart
-         * @param  {Number} _x Desired verticalTicks
-         * @return { numOfHorizontalTicks | module} Current numOfHorizontalTicks or Chart module to chain calls
+         * Gets or Sets the number of ticks of the x axis on the chart
+         * (Default is 5)
+         * @param  {Number} _x Desired horizontal ticks
+         * @return {Number | module} Current xTicks or Chart module to chain calls
          * @public
          */
-        exports.numOfHorizontalTicks = function (_x) {
+        exports.xTicks = function (_x) {
             if (!arguments.length) {
-                return numOfHorizontalTicks;
+                return xTicks;
             }
-            numOfHorizontalTicks = _x;
+            xTicks = _x;
 
             return this;
         };
 
         /**
-         * Gets or Sets the number of verticalTicks of the axis on the chart
-         * @param  {Number} _x Desired verticalTicks
-         * @return { numOfVerticalTicks | module} Current numOfVerticalTicks or Chart module to chain calls
+         * Gets or Sets the number of vertical ticks of the axis on the chart
+         * @param  {Number} _x          Desired vertical ticks
+         * @return {Number | module}    Current yTicks or Chart module to chain calls
          * @public
          */
-        exports.numOfVerticalTicks = function (_x) {
+        exports.yTicks = function (_x) {
             if (!arguments.length) {
-                return numOfVerticalTicks;
+                return yTicks;
             }
-            numOfVerticalTicks = _x;
+            yTicks = _x;
 
             return this;
         };

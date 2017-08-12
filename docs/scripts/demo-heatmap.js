@@ -1,128 +1,51 @@
-webpackJsonp([3,10],[
+webpackJsonp([4,11],[
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var d3Selection = __webpack_require__(1),
-	    PubSub = __webpack_require__(2),
-	    colors = __webpack_require__(19),
-	    groupedBarChart = __webpack_require__(46),
-	    tooltip = __webpack_require__(48),
-	    groupedDataBuilder = __webpack_require__(50),
-	    colorSelectorHelper = __webpack_require__(45);
-	__webpack_require__(29);
+	var d3Selection = __webpack_require__(1);
+	var PubSub = __webpack_require__(2);
 	
-	function creategroupedBarChartWithTooltip(optionalColorSchema) {
-	    var groupedBar = groupedBarChart(),
-	        chartTooltip = tooltip(),
-	        testDataSet = new groupedDataBuilder.GroupedBarChartDataBuilder(),
-	        container = d3Selection.select('.js-grouped-bar-chart-tooltip-container'),
-	        containerWidth = container.node() ? container.node().getBoundingClientRect().width : false,
-	        tooltipContainer,
-	        dataset;
+	var heatmap = __webpack_require__(52);
+	var colors = __webpack_require__(19);
+	var dataBuilder = __webpack_require__(53);
+	
+	function createSimpleHeatmapChart() {
+	    var heatmapChart = heatmap(),
+	        testDataSet = new dataBuilder.HeatmapDataBuilder(),
+	        heatmapContainer = d3Selection.select('.js-heatmap-chart-container'),
+	        containerWidth = heatmapContainer.node() ? heatmapContainer.node().getBoundingClientRect().width : false,
+	        dataset = void 0;
 	
 	    if (containerWidth) {
-	        dataset = testDataSet.with3Sources().build();
+	        dataset = testDataSet.withGithubCommits().build();
 	
-	        // GroupedAreChart Setup and start
-	        groupedBar.tooltipThreshold(600).width(containerWidth).grid('horizontal').isAnimated(true).groupLabel('stack').nameLabel('date').valueLabel('views').on('customMouseOver', function () {
-	            chartTooltip.show();
-	        }).on('customMouseMove', function (dataPoint, topicColorMap, x, y) {
-	            chartTooltip.update(dataPoint, topicColorMap, x, y);
-	        }).on('customMouseOut', function () {
-	            chartTooltip.hide();
-	        });
+	        heatmapChart.width(containerWidth).height(300);
 	
-	        if (optionalColorSchema) {
-	            groupedBar.colorSchema(optionalColorSchema);
-	        }
-	
-	        container.datum(dataset.data).call(groupedBar);
-	
-	        // Tooltip Setup and start
-	        chartTooltip.topicLabel('values').dateLabel('key').nameLabel('stack').title('Testing tooltip');
-	
-	        // Note that if the viewport width is less than the tooltipThreshold value,
-	        // this container won't exist, and the tooltip won't show up
-	        tooltipContainer = d3Selection.select('.js-grouped-bar-chart-tooltip-container .metadata-group');
-	        tooltipContainer.datum([]).call(chartTooltip);
-	
-	        d3Selection.select('#button').on('click', function () {
-	            groupedBar.exportChart('grouped-bar.png', 'Britecharts Grouped Bar');
-	        });
+	        heatmapContainer.datum(dataset).call(heatmapChart);
 	    }
 	}
 	
-	function createHorizontalgroupedBarChart(optionalColorSchema) {
-	    var groupedBar = groupedBarChart(),
-	        chartTooltip = tooltip(),
-	        testDataSet = new groupedDataBuilder.GroupedBarChartDataBuilder(),
-	        container = d3Selection.select('.js-grouped-bar-chart-fixed-container'),
-	        containerWidth = container.node() ? container.node().getBoundingClientRect().width : false,
-	        tooltipContainer,
-	        dataset;
+	// Show charts if container available
+	if (d3Selection.select('.js-heatmap-chart-container').node()) {
+	    createSimpleHeatmapChart();
 	
-	    if (containerWidth) {
-	        dataset = testDataSet.with3Sources().build();
-	
-	        // StackedAreChart Setup and start
-	        groupedBar.tooltipThreshold(600).grid('vertical').width(containerWidth).horizontal(true).isAnimated(true).margin({
-	            left: 80,
-	            top: 40,
-	            right: 30,
-	            bottom: 20
-	        }).nameLabel('date').valueLabel('views').groupLabel('stack').on('customMouseOver', function () {
-	            chartTooltip.show();
-	        }).on('customMouseMove', function (dataPoint, topicColorMap, x, y) {
-	            chartTooltip.update(dataPoint, topicColorMap, x, y);
-	        }).on('customMouseOut', function () {
-	            chartTooltip.hide();
-	        });
-	
-	        if (optionalColorSchema) {
-	            groupedBar.colorSchema(optionalColorSchema);
-	        }
-	
-	        container.datum(dataset.data).call(groupedBar);
-	
-	        // Tooltip Setup and start
-	        chartTooltip.topicLabel('values').dateLabel('key').nameLabel('stack').title('Tooltip Title');
-	
-	        // Note that if the viewport width is less than the tooltipThreshold value,
-	        // this container won't exist, and the tooltip won't show up
-	        tooltipContainer = d3Selection.select('.js-grouped-bar-chart-fixed-container .metadata-group');
-	        tooltipContainer.datum([]).call(chartTooltip);
-	    }
-	}
-	
-	if (d3Selection.select('.js-grouped-bar-chart-tooltip-container').node()) {
-	
-	    // For getting a responsive behavior on our chart,
-	    // we'll need to listen to the window resize event
 	    var redrawCharts = function redrawCharts() {
-	        d3Selection.selectAll('.grouped-bar').remove();
+	        d3Selection.selectAll('.heatmap-chart').remove();
 	
-	        creategroupedBarChartWithTooltip();
-	        createHorizontalgroupedBarChart();
+	        createSimpleHeatmapChart();
 	    };
-	
-	    // Chart creation
-	    creategroupedBarChartWithTooltip();
-	    createHorizontalgroupedBarChart();;
 	
 	    // Redraw charts on window resize
 	    PubSub.subscribe('resize', redrawCharts);
-	
-	    // Color schema selector
-	    colorSelectorHelper.createColorSelector('.js-color-selector-container', '.grouped-bar', creategroupedBarChartWithTooltip);
 	}
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-selection/ Version 1.1.0. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-selection/ Version 1.0.5. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports) :
 		typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -747,18 +670,16 @@ webpackJsonp([3,10],[
 	}
 	
 	var selection_style = function(name, value, priority) {
+	  var node;
 	  return arguments.length > 1
 	      ? this.each((value == null
 	            ? styleRemove : typeof value === "function"
 	            ? styleFunction
 	            : styleConstant)(name, value, priority == null ? "" : priority))
-	      : styleValue(this.node(), name);
+	      : defaultView(node = this.node())
+	          .getComputedStyle(node, null)
+	          .getPropertyValue(name);
 	};
-	
-	function styleValue(node, name) {
-	  return node.style.getPropertyValue(name)
-	      || defaultView(node).getComputedStyle(node, null).getPropertyValue(name);
-	}
 	
 	function propertyRemove(name) {
 	  return function() {
@@ -971,7 +892,7 @@ webpackJsonp([3,10],[
 	  var window = defaultView(node),
 	      event = window.CustomEvent;
 	
-	  if (typeof event === "function") {
+	  if (event) {
 	    event = new event(type, params);
 	  } else {
 	    event = window.document.createEvent("Event");
@@ -1089,7 +1010,6 @@ webpackJsonp([3,10],[
 	exports.selection = selection;
 	exports.selector = selector;
 	exports.selectorAll = selectorAll;
-	exports.style = styleValue;
 	exports.touch = touch;
 	exports.touches = touches;
 	exports.window = defaultView;
@@ -1104,7 +1024,7 @@ webpackJsonp([3,10],[
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_RESULT__;/*
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
 	Copyright (c) 2010,2011,2012,2013,2014 Morgan Roderick http://roderick.dk
 	License: MIT - http://mrgnrdrck.mit-license.org
 	
@@ -1113,22 +1033,20 @@ webpackJsonp([3,10],[
 	(function (root, factory){
 		'use strict';
 	
-		var PubSub = {};
-		root.PubSub = PubSub;
-		factory(PubSub);
+	    if (true){
+	        // AMD. Register as an anonymous module.
+	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	
-		// AMD support
-		if (true){
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function() { return PubSub; }.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    } else if (typeof exports === 'object'){
+	        // CommonJS
+	        factory(exports);
 	
-		// CommonJS and Node.js module support
-		} else if (typeof exports === 'object'){
-			if (module !== undefined && module.exports) {
-				exports = module.exports = PubSub; // Node.js specific `module.exports`
-			}
-			exports.PubSub = PubSub; // CommonJS module 1.1.1 spec
-			module.exports = exports = PubSub; // CommonJS
-		}
+	    }
+	
+	    // Browser globals
+	    var PubSub = {};
+	    root.PubSub = PubSub;
+	    factory(PubSub);
 	
 	}(( typeof window === 'object' && window ) || this, function (PubSub){
 		'use strict';
@@ -2229,7 +2147,7 @@ webpackJsonp([3,10],[
 /* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-axis/ Version 1.0.8. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-axis/ Version 1.0.6. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports) :
 		typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -2249,24 +2167,18 @@ webpackJsonp([3,10],[
 	var epsilon = 1e-6;
 	
 	function translateX(x) {
-	  return "translate(" + (x + 0.5) + ",0)";
+	  return "translate(" + x + ",0)";
 	}
 	
 	function translateY(y) {
-	  return "translate(0," + (y + 0.5) + ")";
-	}
-	
-	function number(scale) {
-	  return function(d) {
-	    return +scale(d);
-	  };
+	  return "translate(0," + y + ")";
 	}
 	
 	function center(scale) {
-	  var offset = Math.max(0, scale.bandwidth() - 1) / 2; // Adjust for 0.5px offset.
+	  var offset = scale.bandwidth() / 2;
 	  if (scale.round()) offset = Math.round(offset);
 	  return function(d) {
-	    return +scale(d) + offset;
+	    return scale(d) + offset;
 	  };
 	}
 	
@@ -2282,7 +2194,7 @@ webpackJsonp([3,10],[
 	      tickSizeOuter = 6,
 	      tickPadding = 3,
 	      k = orient === top || orient === left ? -1 : 1,
-	      x = orient === left || orient === right ? "x" : "y",
+	      x, y = orient === left || orient === right ? (x = "x", "y") : (x = "y", "x"),
 	      transform = orient === top || orient === bottom ? translateX : translateY;
 	
 	  function axis(context) {
@@ -2290,9 +2202,9 @@ webpackJsonp([3,10],[
 	        format = tickFormat == null ? (scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity) : tickFormat,
 	        spacing = Math.max(tickSizeInner, 0) + tickPadding,
 	        range = scale.range(),
-	        range0 = +range[0] + 0.5,
-	        range1 = +range[range.length - 1] + 0.5,
-	        position = (scale.bandwidth ? center : number)(scale.copy()),
+	        range0 = range[0] + 0.5,
+	        range1 = range[range.length - 1] + 0.5,
+	        position = (scale.bandwidth ? center : identity)(scale.copy()),
 	        selection = context.selection ? context.selection() : context,
 	        path = selection.selectAll(".domain").data([null]),
 	        tick = selection.selectAll(".tick").data(values, scale).order(),
@@ -2309,11 +2221,14 @@ webpackJsonp([3,10],[
 	
 	    line = line.merge(tickEnter.append("line")
 	        .attr("stroke", "#000")
-	        .attr(x + "2", k * tickSizeInner));
+	        .attr(x + "2", k * tickSizeInner)
+	        .attr(y + "1", 0.5)
+	        .attr(y + "2", 0.5));
 	
 	    text = text.merge(tickEnter.append("text")
 	        .attr("fill", "#000")
 	        .attr(x, k * spacing)
+	        .attr(y, 0.5)
 	        .attr("dy", orient === top ? "0em" : orient === bottom ? "0.71em" : "0.32em"));
 	
 	    if (context !== selection) {
@@ -3395,7 +3310,7 @@ webpackJsonp([3,10],[
 /* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-scale/ Version 1.0.6. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-scale/ Version 1.0.5. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports, __webpack_require__(4), __webpack_require__(11), __webpack_require__(12), __webpack_require__(9), __webpack_require__(13), __webpack_require__(14), __webpack_require__(7)) :
 		typeof define === 'function' && define.amd ? define(['exports', 'd3-array', 'd3-collection', 'd3-interpolate', 'd3-format', 'd3-time', 'd3-time-format', 'd3-color'], factory) :
@@ -3710,39 +3625,17 @@ webpackJsonp([3,10],[
 	  };
 	
 	  scale.nice = function(count) {
-	    if (count == null) count = 10;
-	
 	    var d = domain(),
-	        i0 = 0,
-	        i1 = d.length - 1,
-	        start = d[i0],
-	        stop = d[i1],
-	        step;
+	        i = d.length - 1,
+	        n = count == null ? 10 : count,
+	        start = d[0],
+	        stop = d[i],
+	        step = d3Array.tickStep(start, stop, n);
 	
-	    if (stop < start) {
-	      step = start, start = stop, stop = step;
-	      step = i0, i0 = i1, i1 = step;
-	    }
-	
-	    step = d3Array.tickIncrement(start, stop, count);
-	
-	    if (step > 0) {
-	      start = Math.floor(start / step) * step;
-	      stop = Math.ceil(stop / step) * step;
-	      step = d3Array.tickIncrement(start, stop, count);
-	    } else if (step < 0) {
-	      start = Math.ceil(start * step) / step;
-	      stop = Math.floor(stop * step) / step;
-	      step = d3Array.tickIncrement(start, stop, count);
-	    }
-	
-	    if (step > 0) {
-	      d[i0] = Math.floor(start / step) * step;
-	      d[i1] = Math.ceil(stop / step) * step;
-	      domain(d);
-	    } else if (step < 0) {
-	      d[i0] = Math.ceil(start * step) / step;
-	      d[i1] = Math.floor(stop * step) / step;
+	    if (step) {
+	      step = d3Array.tickStep(Math.floor(start / step) * step, Math.ceil(stop / step) * step, n);
+	      d[0] = Math.floor(start / step) * step;
+	      d[i] = Math.ceil(stop / step) * step;
 	      domain(d);
 	    }
 	
@@ -4326,7 +4219,7 @@ webpackJsonp([3,10],[
 /* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-collection/ Version 1.0.4. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-collection/ Version 1.0.3. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports) :
 		typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -4415,10 +4308,10 @@ webpackJsonp([3,10],[
 	      nest;
 	
 	  function apply(array, depth, createResult, setResult) {
-	    if (depth >= keys.length) {
-	      if (sortValues != null) array.sort(sortValues);
-	      return rollup != null ? rollup(array) : array;
-	    }
+	    if (depth >= keys.length) return rollup != null
+	        ? rollup(array) : (sortValues != null
+	        ? array.sort(sortValues)
+	        : array);
 	
 	    var i = -1,
 	        n = array.length,
@@ -4549,7 +4442,7 @@ webpackJsonp([3,10],[
 /* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-interpolate/ Version 1.1.5. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-interpolate/ Version 1.1.4. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports, __webpack_require__(7)) :
 		typeof define === 'function' && define.amd ? define(['exports', 'd3-color'], factory) :
@@ -4795,7 +4688,7 @@ webpackJsonp([3,10],[
 	      : b instanceof d3Color.color ? rgb$1
 	      : b instanceof Date ? date
 	      : Array.isArray(b) ? array
-	      : typeof b.valueOf !== "function" && typeof b.toString !== "function" || isNaN(b) ? object
+	      : isNaN(b) ? object
 	      : number)(a, b);
 	};
 	
@@ -5100,7 +4993,7 @@ webpackJsonp([3,10],[
 /* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-time/ Version 1.0.7. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-time/ Version 1.0.6. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports) :
 		typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -5145,13 +5038,7 @@ webpackJsonp([3,10],[
 	    return newInterval(function(date) {
 	      if (date >= date) while (floori(date), !test(date)) date.setTime(date - 1);
 	    }, function(date, step) {
-	      if (date >= date) {
-	        if (step < 0) while (++step <= 0) {
-	          while (offseti(date, -1), !test(date)) {} // eslint-disable-line no-empty
-	        } else while (--step >= 0) {
-	          while (offseti(date, +1), !test(date)) {} // eslint-disable-line no-empty
-	        }
-	      }
+	      if (date >= date) while (--step >= 0) while (offseti(date, 1), !test(date)) {} // eslint-disable-line no-empty
 	    });
 	  };
 	
@@ -6084,7 +5971,7 @@ webpackJsonp([3,10],[
 /* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-transition/ Version 1.1.0. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-transition/ Version 1.0.4. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports, __webpack_require__(1), __webpack_require__(8), __webpack_require__(16), __webpack_require__(12), __webpack_require__(7), __webpack_require__(5)) :
 		typeof define === 'function' && define.amd ? define(['exports', 'd3-selection', 'd3-dispatch', 'd3-timer', 'd3-interpolate', 'd3-color', 'd3-ease'], factory) :
@@ -6649,8 +6536,9 @@ webpackJsonp([3,10],[
 	      value10,
 	      interpolate0;
 	  return function() {
-	    var value0 = d3Selection.style(this, name),
-	        value1 = (this.style.removeProperty(name), d3Selection.style(this, name));
+	    var style = d3Selection.window(this).getComputedStyle(this, null),
+	        value0 = style.getPropertyValue(name),
+	        value1 = (this.style.removeProperty(name), style.getPropertyValue(name));
 	    return value0 === value1 ? null
 	        : value0 === value00 && value1 === value10 ? interpolate0
 	        : interpolate0 = interpolate$$1(value00 = value0, value10 = value1);
@@ -6667,7 +6555,7 @@ webpackJsonp([3,10],[
 	  var value00,
 	      interpolate0;
 	  return function() {
-	    var value0 = d3Selection.style(this, name);
+	    var value0 = d3Selection.window(this).getComputedStyle(this, null).getPropertyValue(name);
 	    return value0 === value1 ? null
 	        : value0 === value00 ? interpolate0
 	        : interpolate0 = interpolate$$1(value00 = value0, value1);
@@ -6679,9 +6567,10 @@ webpackJsonp([3,10],[
 	      value10,
 	      interpolate0;
 	  return function() {
-	    var value0 = d3Selection.style(this, name),
+	    var style = d3Selection.window(this).getComputedStyle(this, null),
+	        value0 = style.getPropertyValue(name),
 	        value1 = value(this);
-	    if (value1 == null) value1 = (this.style.removeProperty(name), d3Selection.style(this, name));
+	    if (value1 == null) value1 = (this.style.removeProperty(name), style.getPropertyValue(name));
 	    return value0 === value1 ? null
 	        : value0 === value00 && value1 === value10 ? interpolate0
 	        : interpolate0 = interpolate$$1(value00 = value0, value10 = value1);
@@ -6877,7 +6766,7 @@ webpackJsonp([3,10],[
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	// https://d3js.org/d3-timer/ Version 1.0.6. Copyright 2017 Mike Bostock.
+	// https://d3js.org/d3-timer/ Version 1.0.5. Copyright 2017 Mike Bostock.
 	(function (global, factory) {
 		 true ? factory(exports) :
 		typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -6894,7 +6783,7 @@ webpackJsonp([3,10],[
 	var clockNow = 0;
 	var clockSkew = 0;
 	var clock = typeof performance === "object" && performance.now ? performance : Date;
-	var setFrame = typeof window === "object" && window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : function(f) { setTimeout(f, 17); };
+	var setFrame = typeof requestAnimationFrame === "function" ? requestAnimationFrame : function(f) { setTimeout(f, 17); };
 	
 	function now() {
 	  return clockNow || (setFrame(clearNow), clockNow = clock.now() + clockSkew);
@@ -7030,203 +6919,7 @@ webpackJsonp([3,10],[
 
 /***/ }),
 /* 17 */,
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-	    'use strict';
-	
-	    var _require = __webpack_require__(19),
-	        colorSchemas = _require.colorSchemas;
-	
-	    var constants = __webpack_require__(20);
-	    var serializeWithStyles = __webpack_require__(21);
-	
-	    var encoder = window.btoa;
-	
-	    if (!encoder) {
-	        encoder = __webpack_require__(22).encode;
-	    }
-	
-	    // Base64 doesn't work really well with Unicode strings, so we need to use this function
-	    // Ref: https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
-	    var b64EncodeUnicode = function b64EncodeUnicode(str) {
-	        return encoder(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p1) {
-	            return String.fromCharCode('0x' + p1);
-	        }));
-	    };
-	
-	    var config = {
-	        styleClass: 'britechartStyle',
-	        defaultFilename: 'britechart.png',
-	        chartBackground: 'white',
-	        imageSourceBase: 'data:image/svg+xml;base64,',
-	        titleFontSize: '15px',
-	        titleFontFamily: '\'Benton Sans\', sans-serif',
-	        titleTopOffset: 30,
-	        get styleBackgroundString() {
-	            return '<style>svg{background:' + this.chartBackground + ';}</style>';
-	        }
-	    };
-	
-	    /**
-	     * Main function to be used as a method by chart instances to export charts to png
-	     * @param  {array} svgs         (or an svg element) pass in both chart & legend as array or just chart as svg or in array
-	     * @param  {string} filename    [download to be called <filename>.png]
-	     * @param  {string} title       Title for the image
-	     */
-	    function exportChart(d3svg, filename, title) {
-	        var img = createImage(convertSvgToHtml.call(this, d3svg, title));
-	
-	        img.onload = handleImageLoad.bind(img, createCanvas(this.width(), this.height()), filename);
-	    }
-	
-	    /**
-	     * adds background styles to raw html
-	     * @param {string} html raw html
-	     */
-	    function addBackground(html) {
-	        return html.replace('>', '>' + config.styleBackgroundString);
-	    }
-	
-	    /**
-	     * takes d3 svg el, adds proper svg tags, adds inline styles
-	     * from stylesheets, adds white background and returns string
-	     * @param  {object} d3svg TYPE d3 svg element
-	     * @return {string} string of passed d3
-	     */
-	    function convertSvgToHtml(d3svg, title) {
-	        if (!d3svg) {
-	            return;
-	        }
-	
-	        d3svg.attr('version', 1.1).attr('xmlns', 'http://www.w3.org/2000/svg');
-	        var serializer = serializeWithStyles.initializeSerializer();
-	        var html = serializer(d3svg.node());
-	
-	        html = formatHtmlByBrowser(html);
-	        html = prependTitle.call(this, html, title, parseInt(d3svg.attr('width'), 10));
-	        html = addBackground(html);
-	
-	        return html;
-	    }
-	
-	    /**
-	     * Create Canvas
-	     * @param  {number} width
-	     * @param  {number} height
-	     * @return {object} TYPE canvas element
-	     */
-	    function createCanvas(width, height) {
-	        var canvas = document.createElement('canvas');
-	
-	        canvas.height = height;
-	        canvas.width = width;
-	
-	        return canvas;
-	    }
-	
-	    /**
-	     * Create Image
-	     * @param  {string} svgHtml string representation of svg el
-	     * @return {object}  TYPE element <img>, src points at svg
-	     */
-	    function createImage(svgHtml) {
-	        var img = new Image();
-	
-	        img.src = '' + config.imageSourceBase + b64EncodeUnicode(svgHtml);
-	
-	        return img;
-	    };
-	
-	    /**
-	     * Draws image on canvas
-	     * @param  {object} image TYPE:el <img>, to be drawn
-	     * @param  {object} canvas TYPE: el <canvas>, to draw on
-	     */
-	    function drawImageOnCanvas(image, canvas) {
-	        canvas.getContext('2d').drawImage(image, 0, 0);
-	
-	        return canvas;
-	    }
-	
-	    /**
-	     * Triggers browser to download image, convert canvas to url,
-	     * we need to append the link el to the dom before clicking it for Firefox to register
-	     * point <a> at it and trigger click
-	     * @param  {object} canvas TYPE: el <canvas>
-	     * @param  {string} filename
-	     * @param  {string} extensionType
-	     */
-	    function downloadCanvas(canvas) {
-	        var filename = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : config.defaultFilename;
-	        var extensionType = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'image/png';
-	
-	        var url = canvas.toDataURL(extensionType);
-	        var link = document.createElement('a');
-	
-	        link.href = url;
-	        link.download = filename;
-	        document.body.appendChild(link);
-	        link.click();
-	        document.body.removeChild(link);
-	    }
-	
-	    /**
-	     * Some browsers need special formatting, we handle that here
-	     * @param  {string} html string of svg html
-	     * @return {string} string of svg html
-	     */
-	    function formatHtmlByBrowser(html) {
-	        if (navigator.userAgent.search('FireFox') > -1) {
-	            return html.replace(/url.*&quot;\)/, 'url(&quot;#' + constants.lineGradientId + '&quot;);');
-	        }
-	
-	        return html;
-	    }
-	
-	    /**
-	     * Handles on load event fired by img.onload, this=img
-	     * @param  {object} canvas TYPE: el <canvas>
-	     * @param  {string} filename
-	     * @param  {object} e
-	     */
-	    function handleImageLoad(canvas, filename, e) {
-	        e.preventDefault();
-	
-	        downloadCanvas(drawImageOnCanvas(this, canvas), filename);
-	    }
-	
-	    /**
-	     * if passed, append title to the raw html to appear on graph
-	     * @param  {string} html     raw html string
-	     * @param  {string} title    title of the graph
-	     * @param  {number} svgWidth width of graph container
-	     * @return {string}         raw html with title prepended
-	     */
-	    function prependTitle(html, title, svgWidth) {
-	        if (!title || !svgWidth) {
-	            return html;
-	        }
-	        var grey = colorSchemas.grey;
-	
-	
-	        html = html.replace(/<g/, '<text x="' + this.margin().left + '" y="' + config.titleTopOffset + '" font-family="' + config.titleFontFamily + '" font-size="' + config.titleFontSize + '" fill="' + grey[6] + '"> ' + title + ' </text><g ');
-	
-	        return html;
-	    }
-	
-	    return {
-	        exportChart: exportChart,
-	        convertSvgToHtml: convertSvgToHtml,
-	        createImage: createImage,
-	        drawImageOnCanvas: drawImageOnCanvas
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
+/* 18 */,
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -7236,14 +6929,14 @@ webpackJsonp([3,10],[
 	
 	    // Color Gradients
 	    var britechartGradients = {
-	        greenBlue: ['#39C7EA', '#4CDCBA'],
-	        orangePink: ['#FBC670', '#F766B8'],
-	        bluePurple: ['#3DC3C9', '#824a9e']
+	        greenBlueGradient: ['#39C7EA', '#4CDCBA'],
+	        orangePinkGradient: ['#FBC670', '#F766B8'],
+	        bluePurpleGradient: ['#3DC3C9', '#824a9e']
 	    };
 	
 	    // Color Schemas
 	    // Standard Color Schema for Britecharts
-	    var britecharts = ['#6aedc7', //green
+	    var britechartsColorSchema = ['#6aedc7', //green
 	    '#39c2c9', //blue
 	    '#ffce00', //yellow
 	    '#ffa71a', //orange
@@ -7252,378 +6945,69 @@ webpackJsonp([3,10],[
 	    ];
 	
 	    // Grey Schema for Britecharts
-	    var grey = ['#F8F8FA', '#EFF2F5', '#D2D6DF', '#C3C6CF', '#ADB0B6', '#666A73', '#45494E', '#363A43', '#282C35'];
+	    var britechartsGreySchema = ['#F8F8FA', '#EFF2F5', '#D2D6DF', '#C3C6CF', '#ADB0B6', '#666A73', '#45494E', '#363A43', '#282C35'];
 	
-	    // Orange Palette
-	    var orange = ['#fcc870', '#ffa71a', '#fb8825', '#f6682f', '#db5a2c', '#bf4c28', '#a43b1c', '#892a10', '#f9e9c5'];
-	    // Blue Palette
-	    var blueGreen = ['#ccf7f6', '#70e4e0', '#00d8d2', '#00acaf', '#007f8c', '#005e66', '#003c3f', '#002d2f', '#0d2223'];
-	    // LightBlue Palette
-	    var teal = ['#ccfffe', '#94f7f4', '#00fff8', '#1de1e1', '#39c2c9', '#2e9a9d', '#227270', '#1a5957', '#133f3e'];
-	    // Green Palette
-	    var green = ['#edfff7', '#d7ffef', '#c0ffe7', '#95f5d7', '#6aedc7', '#59c3a3', '#479980', '#34816a', '#206953'];
-	    // Yellow Palette
-	    var yellow = ['#f9f2b3', '#fbe986', '#fce05a', '#fed72d', '#ffce00', '#fcc11c', '#f9b438', '#eda629', '#e09819'];
-	    // Pink Palette
-	    var pink = ['#fdd1ea', '#fb9cd2', '#f866b9', '#fc40b6', '#ff1ab3', '#e3239d', '#c62c86', '#a62073', '#85135f'];
-	    // Purple Palette
-	    var purple = ['#ddd6fc', '#bbb1f0', '#998ce3', '#8e6bc1', '#824a9e', '#77337f', '#6b1c60', '#591650', '#470f3f'];
-	    // Red Palette
-	    var red = ['#ffd8d4', '#ffb5b0', '#ff938c', '#ff766c', '#ff584c', '#f04b42', '#e03d38', '#be2e29', '#9c1e19'];
+	    // Extended Orange Palette
+	    var extendedOrangeColorSchema = ['#fcc870', '#ffa71a', '#fb8825', '#f6682f', '#db5a2c', '#bf4c28', '#a43b1c', '#892a10', '#f9e9c5'];
+	    // Extended Blue Palette
+	    var extendedBlueColorSchema = ['#ccf7f6', '#70e4e0', '#00d8d2', '#00acaf', '#007f8c', '#005e66', '#003c3f', '#002d2f', '#0d2223'];
+	    // Extended LightBlue Palette
+	    var extendedLightBlueColorSchema = ['#ccfffe', '#94f7f4', '#00fff8', '#1de1e1', '#39c2c9', '#2e9a9d', '#227270', '#1a5957', '#133f3e'];
+	    // Extended Green Palette
+	    var extendedGreenColorSchema = ['#edfff7', '#d7ffef', '#c0ffe7', '#95f5d7', '#6aedc7', '#59c3a3', '#479980', '#34816a', '#206953'];
+	    // Extended Yellow Palette
+	    var extendedYellowColorSchema = ['#f9f2b3', '#fbe986', '#fce05a', '#fed72d', '#ffce00', '#fcc11c', '#f9b438', '#eda629', '#e09819'];
+	    // Extended Pink Palette
+	    var extendedPinkColorSchema = ['#fdd1ea', '#fb9cd2', '#f866b9', '#fc40b6', '#ff1ab3', '#e3239d', '#c62c86', '#a62073', '#85135f'];
+	    // Extended Purple Palette
+	    var extendedPurpleColorSchema = ['#ddd6fc', '#bbb1f0', '#998ce3', '#8e6bc1', '#824a9e', '#77337f', '#6b1c60', '#591650', '#470f3f'];
+	    // Extended Red Palette
+	    var extendedRedColorSchema = ['#ffd8d4', '#ffb5b0', '#ff938c', '#ff766c', '#ff584c', '#f04b42', '#e03d38', '#be2e29', '#9c1e19'];
 	
 	    var aloeGreen = ['#7bdcc0'];
 	
 	    return {
 	        colorSchemas: {
-	            britecharts: britecharts,
-	            grey: grey,
-	            orange: orange,
-	            blueGreen: blueGreen,
-	            teal: teal,
-	            green: green,
-	            yellow: yellow,
-	            pink: pink,
-	            purple: purple,
-	            red: red
+	            britechartsColorSchema: britechartsColorSchema,
+	            britechartsGreySchema: britechartsGreySchema,
+	            extendedOrangeColorSchema: extendedOrangeColorSchema,
+	            extendedBlueColorSchema: extendedBlueColorSchema,
+	            extendedLightBlueColorSchema: extendedLightBlueColorSchema,
+	            extendedGreenColorSchema: extendedGreenColorSchema,
+	            extendedYellowColorSchema: extendedYellowColorSchema,
+	            extendedPinkColorSchema: extendedPinkColorSchema,
+	            extendedPurpleColorSchema: extendedPurpleColorSchema,
+	            extendedRedColorSchema: extendedRedColorSchema
 	        },
 	        colorSchemasHuman: {
-	            'britecharts': 'Britecharts Default',
-	            'grey': 'Britecharts Grey',
-	            'orange': 'Orange',
-	            'blueGreen': 'Blue',
-	            'teal': 'Light Blue',
-	            'green': 'Green',
-	            'yellow': 'Yellow',
-	            'pink': 'Pink',
-	            'purple': 'Purple',
-	            'red': 'Red'
+	            'britechartsColorSchema': 'Britecharts Default',
+	            'britechartsGreySchema': 'Britecharts Grey',
+	            'extendedOrangeColorSchema': 'Orange',
+	            'extendedBlueColorSchema': 'Blue',
+	            'extendedLightBlueColorSchema': 'Light Blue',
+	            'extendedGreenColorSchema': 'Green',
+	            'extendedYellowColorSchema': 'Yellow',
+	            'extendedPinkColorSchema': 'Pink',
+	            'extendedPurpleColorSchema': 'Purple',
+	            'extendedRedColorSchema': 'Red'
 	        },
 	        singleColors: {
 	            aloeGreen: aloeGreen
 	        },
 	        colorGradients: britechartGradients,
 	        colorGradientsHuman: {
-	            greenBlue: 'Green To Blue',
-	            orangePink: 'Orange to Pink',
-	            bluePurple: 'Blue to Purple'
+	            greenBlueGradient: 'Green To Blue',
+	            orangePinkGradient: 'Orange to Pink',
+	            bluePurpleGradient: 'Blue to Purple'
 	        }
 	    };
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 20 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	
-	    var axisTimeCombinations = {
-	        MINUTE_HOUR: 'minute-hour',
-	        HOUR_DAY: 'hour-daymonth',
-	        DAY_MONTH: 'day-month',
-	        MONTH_YEAR: 'month-year'
-	    };
-	
-	    var timeBenchmarks = {
-	        ONE_AND_A_HALF_YEARS: 47304000000,
-	        ONE_YEAR: 31536000365,
-	        ONE_DAY: 86400001
-	    };
-	
-	    return {
-	        axisTimeCombinations: axisTimeCombinations,
-	        timeBenchmarks: timeBenchmarks,
-	        lineGradientId: 'lineGradientId'
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 21 */
-/***/ (function(module, exports) {
-
-	'use strict';
-	
-	module.exports = function () {
-	
-	    'use strict';
-	
-	    return {
-	
-	        /**
-	         * returns serializer function, only run it when you know you want to serialize your chart
-	         * @return {func} serializer to add styles in line to dom string
-	         */
-	        initializeSerializer: function initializeSerializer() {
-	
-	            // Mapping between tag names and css default values lookup tables. This allows to exclude default values in the result.
-	            var defaultStylesByTagName = {};
-	
-	            // Styles inherited from style sheets will not be rendered for elements with these tag names
-	            var noStyleTags = { 'BASE': true, 'HEAD': true, 'HTML': true, 'META': true, 'NOFRAME': true, 'NOSCRIPT': true, 'PARAM': true, 'SCRIPT': true, 'STYLE': true, 'TITLE': true };
-	
-	            // This list determines which css default values lookup tables are precomputed at load time
-	            // Lookup tables for other tag names will be automatically built at runtime if needed
-	            var tagNames = ['A', 'ABBR', 'ADDRESS', 'AREA', 'ARTICLE', 'ASIDE', 'AUDIO', 'B', 'BASE', 'BDI', 'BDO', 'BLOCKQUOTE', 'BODY', 'BR', 'BUTTON', 'CANVAS', 'CAPTION', 'CENTER', 'CITE', 'CODE', 'COL', 'COLGROUP', 'COMMAND', 'DATALIST', 'DD', 'DEL', 'DETAILS', 'DFN', 'DIV', 'DL', 'DT', 'EM', 'EMBED', 'FIELDSET', 'FIGCAPTION', 'FIGURE', 'FONT', 'FOOTER', 'FORM', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'HEAD', 'HEADER', 'HGROUP', 'HR', 'HTML', 'I', 'IFRAME', 'IMG', 'INPUT', 'INS', 'KBD', 'LABEL', 'LEGEND', 'LI', 'LINK', 'MAP', 'MARK', 'MATH', 'MENU', 'META', 'METER', 'NAV', 'NOBR', 'NOSCRIPT', 'OBJECT', 'OL', 'OPTION', 'OPTGROUP', 'OUTPUT', 'P', 'PARAM', 'PRE', 'PROGRESS', 'Q', 'RP', 'RT', 'RUBY', 'S', 'SAMP', 'SCRIPT', 'SECTION', 'SELECT', 'SMALL', 'SOURCE', 'SPAN', 'STRONG', 'STYLE', 'SUB', 'SUMMARY', 'SUP', 'SVG', 'TABLE', 'TBODY', 'TD', 'TEXTAREA', 'TFOOT', 'TH', 'THEAD', 'TIME', 'TITLE', 'TR', 'TRACK', 'U', 'UL', 'VAR', 'VIDEO', 'WBR'];
-	
-	            // Precompute the lookup tables.
-	            [].forEach.call(tagNames, function (name) {
-	                if (!noStyleTags[name]) {
-	                    defaultStylesByTagName[name] = computeDefaultStyleByTagName(name);
-	                }
-	            });
-	
-	            function computeDefaultStyleByTagName(tagName) {
-	                var defaultStyle = {},
-	                    element = document.body.appendChild(document.createElement(tagName)),
-	                    computedStyle = window.getComputedStyle(element);
-	
-	                [].forEach.call(computedStyle, function (style) {
-	                    defaultStyle[style] = computedStyle[style];
-	                });
-	                document.body.removeChild(element);
-	                return defaultStyle;
-	            }
-	
-	            function getDefaultStyleByTagName(tagName) {
-	                tagName = tagName.toUpperCase();
-	                if (!defaultStylesByTagName[tagName]) {
-	                    defaultStylesByTagName[tagName] = computeDefaultStyleByTagName(tagName);
-	                }
-	                return defaultStylesByTagName[tagName];
-	            };
-	
-	            function serializeWithStyles(elem) {
-	
-	                var cssTexts = [],
-	                    elements = void 0,
-	                    computedStyle = void 0,
-	                    defaultStyle = void 0,
-	                    result = void 0;
-	
-	                if (!elem || elem.nodeType !== Node.ELEMENT_NODE) {
-	                    // 'Error: Object passed in to serializeWithSyles not of nodeType Node.ELEMENT_NODE'
-	
-	                    return;
-	                }
-	
-	                cssTexts = [];
-	                elements = elem.querySelectorAll('*');
-	
-	                [].forEach.call(elements, function (el, i) {
-	                    if (!noStyleTags[el.tagName]) {
-	                        computedStyle = window.getComputedStyle(el);
-	                        defaultStyle = getDefaultStyleByTagName(el.tagName);
-	                        cssTexts[i] = el.style.cssText;
-	                        [].forEach.call(computedStyle, function (cssPropName) {
-	                            if (computedStyle[cssPropName] !== defaultStyle[cssPropName]) {
-	                                el.style[cssPropName] = computedStyle[cssPropName];
-	                            }
-	                        });
-	                    }
-	                });
-	
-	                result = elem.outerHTML;
-	                elements = [].map.call(elements, function (el, i) {
-	                    el.style.cssText = cssTexts[i];
-	                    return el;
-	                });
-	
-	                return result;
-	            };
-	
-	            return serializeWithStyles;
-	        }
-	    };
-	}();
-
-/***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {/*! http://mths.be/base64 v0.1.0 by @mathias | MIT license */
-	;(function(root) {
-	
-		// Detect free variables `exports`.
-		var freeExports = typeof exports == 'object' && exports;
-	
-		// Detect free variable `module`.
-		var freeModule = typeof module == 'object' && module &&
-			module.exports == freeExports && module;
-	
-		// Detect free variable `global`, from Node.js or Browserified code, and use
-		// it as `root`.
-		var freeGlobal = typeof global == 'object' && global;
-		if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
-			root = freeGlobal;
-		}
-	
-		/*--------------------------------------------------------------------------*/
-	
-		var InvalidCharacterError = function(message) {
-			this.message = message;
-		};
-		InvalidCharacterError.prototype = new Error;
-		InvalidCharacterError.prototype.name = 'InvalidCharacterError';
-	
-		var error = function(message) {
-			// Note: the error messages used throughout this file match those used by
-			// the native `atob`/`btoa` implementation in Chromium.
-			throw new InvalidCharacterError(message);
-		};
-	
-		var TABLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-		// http://whatwg.org/html/common-microsyntaxes.html#space-character
-		var REGEX_SPACE_CHARACTERS = /[\t\n\f\r ]/g;
-	
-		// `decode` is designed to be fully compatible with `atob` as described in the
-		// HTML Standard. http://whatwg.org/html/webappapis.html#dom-windowbase64-atob
-		// The optimized base64-decoding algorithm used is based on @atk’s excellent
-		// implementation. https://gist.github.com/atk/1020396
-		var decode = function(input) {
-			input = String(input)
-				.replace(REGEX_SPACE_CHARACTERS, '');
-			var length = input.length;
-			if (length % 4 == 0) {
-				input = input.replace(/==?$/, '');
-				length = input.length;
-			}
-			if (
-				length % 4 == 1 ||
-				// http://whatwg.org/C#alphanumeric-ascii-characters
-				/[^+a-zA-Z0-9/]/.test(input)
-			) {
-				error(
-					'Invalid character: the string to be decoded is not correctly encoded.'
-				);
-			}
-			var bitCounter = 0;
-			var bitStorage;
-			var buffer;
-			var output = '';
-			var position = -1;
-			while (++position < length) {
-				buffer = TABLE.indexOf(input.charAt(position));
-				bitStorage = bitCounter % 4 ? bitStorage * 64 + buffer : buffer;
-				// Unless this is the first of a group of 4 characters…
-				if (bitCounter++ % 4) {
-					// …convert the first 8 bits to a single ASCII character.
-					output += String.fromCharCode(
-						0xFF & bitStorage >> (-2 * bitCounter & 6)
-					);
-				}
-			}
-			return output;
-		};
-	
-		// `encode` is designed to be fully compatible with `btoa` as described in the
-		// HTML Standard: http://whatwg.org/html/webappapis.html#dom-windowbase64-btoa
-		var encode = function(input) {
-			input = String(input);
-			if (/[^\0-\xFF]/.test(input)) {
-				// Note: no need to special-case astral symbols here, as surrogates are
-				// matched, and the input is supposed to only contain ASCII anyway.
-				error(
-					'The string to be encoded contains characters outside of the ' +
-					'Latin1 range.'
-				);
-			}
-			var padding = input.length % 3;
-			var output = '';
-			var position = -1;
-			var a;
-			var b;
-			var c;
-			var d;
-			var buffer;
-			// Make sure any padding is handled outside of the loop.
-			var length = input.length - padding;
-	
-			while (++position < length) {
-				// Read three bytes, i.e. 24 bits.
-				a = input.charCodeAt(position) << 16;
-				b = input.charCodeAt(++position) << 8;
-				c = input.charCodeAt(++position);
-				buffer = a + b + c;
-				// Turn the 24 bits into four chunks of 6 bits each, and append the
-				// matching character for each of them to the output.
-				output += (
-					TABLE.charAt(buffer >> 18 & 0x3F) +
-					TABLE.charAt(buffer >> 12 & 0x3F) +
-					TABLE.charAt(buffer >> 6 & 0x3F) +
-					TABLE.charAt(buffer & 0x3F)
-				);
-			}
-	
-			if (padding == 2) {
-				a = input.charCodeAt(position) << 8;
-				b = input.charCodeAt(++position);
-				buffer = a + b;
-				output += (
-					TABLE.charAt(buffer >> 10) +
-					TABLE.charAt((buffer >> 4) & 0x3F) +
-					TABLE.charAt((buffer << 2) & 0x3F) +
-					'='
-				);
-			} else if (padding == 1) {
-				buffer = input.charCodeAt(position);
-				output += (
-					TABLE.charAt(buffer >> 2) +
-					TABLE.charAt((buffer << 4) & 0x3F) +
-					'=='
-				);
-			}
-	
-			return output;
-		};
-	
-		var base64 = {
-			'encode': encode,
-			'decode': decode,
-			'version': '0.1.0'
-		};
-	
-		// Some AMD build optimizers, like r.js, check for specific condition patterns
-		// like the following:
-		if (
-			true
-		) {
-			!(__WEBPACK_AMD_DEFINE_RESULT__ = function() {
-				return base64;
-			}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-		}	else if (freeExports && !freeExports.nodeType) {
-			if (freeModule) { // in Node.js or RingoJS v0.8.0+
-				freeModule.exports = base64;
-			} else { // in Narwhal or RingoJS v0.7.0-
-				for (var key in base64) {
-					base64.hasOwnProperty(key) && (freeExports[key] = base64[key]);
-				}
-			}
-		} else { // in Rhino or a web browser
-			root.base64 = base64;
-		}
-	
-	}(this));
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(23)(module), (function() { return this; }())))
-
-/***/ }),
-/* 23 */
-/***/ (function(module, exports) {
-
-	module.exports = function(module) {
-		if(!module.webpackPolyfill) {
-			module.deprecate = function() {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
-	}
-
-
-/***/ }),
+/* 20 */,
+/* 21 */,
+/* 22 */,
+/* 23 */,
 /* 24 */,
 /* 25 */,
 /* 26 */
@@ -9182,27 +8566,7 @@ webpackJsonp([3,10],[
 /***/ }),
 /* 27 */,
 /* 28 */,
-/* 29 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var _ = __webpack_require__(26),
-	    d3Selection = __webpack_require__(1),
-	    PubSub = __webpack_require__(2),
-	    debounceDelay = 200,
-	    cachedWidth = window.innerWidth;
-	
-	d3Selection.select(window).on('resize', _.debounce(function () {
-	    var newWidth = window.innerWidth;
-	
-	    if (cachedWidth !== newWidth) {
-	        cachedWidth = newWidth;
-	        PubSub.publish('resize');
-	    }
-	}, debounceDelay));
-
-/***/ }),
+/* 29 */,
 /* 30 */,
 /* 31 */,
 /* 32 */,
@@ -9212,265 +8576,106 @@ webpackJsonp([3,10],[
 /* 36 */,
 /* 37 */,
 /* 38 */,
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-	    'use strict';
-	
-	    var d3Format = __webpack_require__(9);
-	
-	    /**
-	     * Calculates percentage of value from total
-	     * @param  {Number}  value    Value to check
-	     * @param  {Number}  total    Sum of values
-	     * @param  {String}  decimals Specifies number of decimals https://github.com/d3/d3-format
-	     * @return {String}           Percentage
-	     */
-	    function calculatePercent(value, total, decimals) {
-	        return d3Format.format(decimals)(value / total * 100);
-	    }
-	
-	    /**
-	     * Checks if a number is an integer of has decimal values
-	     * @param  {Number}  value Value to check
-	     * @return {Boolean}       If it is an iteger
-	     */
-	    function isInteger(value) {
-	        return value % 1 === 0;
-	    }
-	
-	    return {
-	        calculatePercent: calculatePercent,
-	        isInteger: isInteger
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
+/* 39 */,
 /* 40 */,
 /* 41 */,
 /* 42 */,
 /* 43 */,
 /* 44 */,
-/* 45 */
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-	
-	    var d3Selection = __webpack_require__(1),
-	        colors = __webpack_require__(19),
-	        selectClass = 'form-control';
-	
-	    /**
-	     * Creates a color schema selector
-	     * @param  {String}   selectContainerSelector   CSS DOM selector for the select box root
-	     * @param  {String}   chartSelector             CSS DOM selector of the chart to render
-	     * @param  {Function} callback                  Optional callback to execute after color change
-	     * @return {void}
-	     */
-	    function createColorSelector(selectContainerSelector, chartSelector, callback) {
-	        var colorKeys = Object.keys(colors.colorSchemas),
-	            containerSelector = document.querySelector(selectContainerSelector);
-	
-	        if (!containerSelector) {
-	            return;
-	        }
-	
-	        // Create Select
-	        var sel = document.createElement('select');
-	
-	        sel.className += ' ' + selectClass;
-	
-	        // And fill with options
-	        colorKeys.forEach(function (key) {
-	            var opt = document.createElement('option');
-	
-	            opt.value = key;
-	            opt.text = colors.colorSchemasHuman[key];
-	            sel.add(opt);
-	        });
-	
-	        // Add it to the DOM
-	        containerSelector.append(sel);
-	
-	        // Listen for changes
-	        d3Selection.select(sel).on('change', function () {
-	            // Get new color schema
-	            var newSchema = colors.colorSchemas[this.value];
-	
-	            d3Selection.select(chartSelector).remove();
-	
-	            // Draw
-	            if (callback) {
-	                callback(newSchema);
-	            }
-	        });
-	    }
-	
-	    return {
-	        createColorSelector: createColorSelector
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 	
 	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
 	    'use strict';
 	
 	    var d3Array = __webpack_require__(4);
+	    var d3Ease = __webpack_require__(5);
 	    var d3Axis = __webpack_require__(6);
 	    var d3Color = __webpack_require__(7);
-	    var d3Collection = __webpack_require__(11);
-	    var d3Dispatch = __webpack_require__(8);
-	    var d3Ease = __webpack_require__(5);
 	    var d3Interpolate = __webpack_require__(12);
+	    var d3Dispatch = __webpack_require__(8);
+	    var d3Format = __webpack_require__(9);
 	    var d3Scale = __webpack_require__(10);
 	    var d3Selection = __webpack_require__(1);
-	    var assign = __webpack_require__(47);
 	    var d3Transition = __webpack_require__(15);
 	
-	    var _require = __webpack_require__(18),
-	        exportChart = _require.exportChart;
-	
 	    var colorHelper = __webpack_require__(19);
-	    var NUMBER_FORMAT = ',f';
-	    var uniq = function uniq(arrArg) {
-	        return arrArg.filter(function (elem, pos, arr) {
-	            return arr.indexOf(elem) == pos;
-	        });
-	    };
+	
+	    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	
 	    /**
-	     * @typdef D3Layout
-	     * @type function
+	     * @typedef HeatmapData
+	     * @type {Array[]}
+	     * @property {Number[]} values
+	     *              {Number} values[0] weekday (0: Monday, 6: Sunday)
+	     *              {Number} values[1] hour
+	     *              {Number} values[2] quantity
+	     *
+	     * @example
+	     * [
+	     *      [0, 1, 3],
+	     *      [1, 2, 4]
+	     * ]
 	     */
 	
 	    /**
-	     * @typedef GroupedBarChartData
-	     * @type {Object}
-	     * @property {Object[]} data       All data entries
-	     * @property {String} name         Name of the entry
-	     * @property {String} group        group of the entry
-	     * @property {Number} value        Value of the entry
+	     * Heatmap reusable API class that renders a
+	     * simple and configurable heatmap.
+	     *
+	     * @module Heatmap
+	     * @tutorial heatmap
+	     * @requires d3-array, d3-axis, d3-dispatch, d3-scale, d3-selection
 	     *
 	     * @example
-	     * {
-	     *     'data': [
-	     *         {
-	     *             "name": "2011-01",
-	     *             "group": "Direct",
-	     *             "value": 0
-	     *         }
-	     *     ]
-	     * }
-	     */
-	
-	    /**
-	     * Grouped Bar Chart reusable API module that allows us
-	     * rendering a multi grouped bar and configurable chart.
+	     * var heatmapChart = heatmap();
 	     *
-	     * @module Grouped-bar
-	     * @tutorial grouped-bar
-	     * @requires d3-array, d3-axis, d3-color, d3-collection, d3-dispatch, d3-ease,
-	     *  d3-interpolate, d3-scale, d3-selection, lodash assign
-	     *
-	     * @example
-	     * let groupedBar = GroupedBar();
-	     *
-	     * groupedBar
-	     *     .width(containerWidth);
+	     * heatmapChart
+	     *     .height(500)
+	     *     .width(800);
 	     *
 	     * d3Selection.select('.css-selector')
-	     *     .datum(dataset.data)
-	     *     .call(groupedBar);
+	     *     .datum(dataset)
+	     *     .call(heatmapChart);
 	     *
 	     */
 	    return function module() {
 	
 	        var margin = {
-	            top: 40,
-	            right: 30,
-	            bottom: 60,
-	            left: 70
+	            top: 10,
+	            right: 10,
+	            bottom: 10,
+	            left: 10
 	        },
 	            width = 960,
 	            height = 500,
-	            xScale = void 0,
-	            xScale2 = void 0,
-	            xAxis = void 0,
-	            yScale = void 0,
-	            yScale2 = void 0,
-	            yAxis = void 0,
-	            aspectRatio = null,
-	            yTickTextYOffset = -8,
-	            yTickTextXOffset = -20,
-	            yTicks = 5,
-	            xTicks = 5,
-	            baseLine = void 0,
-	            colorSchema = colorHelper.colorSchemas.britecharts,
-	            colorScale = void 0,
-	            categoryColorMap = void 0,
-	            layers = void 0,
-	            ease = d3Ease.easeQuadInOut,
-	            isHorizontal = false,
-	            svg = void 0,
 	            chartWidth = void 0,
 	            chartHeight = void 0,
+	            svg = void 0,
 	            data = void 0,
-	            groups = void 0,
-	            transformedData = void 0,
-	            tooltipThreshold = 480,
-	            xAxisPadding = {
-	            top: 0,
-	            left: 0,
-	            bottom: 0,
-	            right: 0
-	        },
-	            maxBarNumber = 8,
-	            animationDelayStep = 20,
-	            animationDelays = d3Array.range(animationDelayStep, maxBarNumber * animationDelayStep, animationDelayStep),
-	            animationDuration = 1000,
-	            grid = null,
-	            nameLabel = 'name',
-	            valueLabel = 'value',
-	            groupLabel = 'group',
-	            valueLabelFormat = NUMBER_FORMAT,
+	            boxes = void 0,
+	            boxSize = 20,
+	            colorSchema = colorHelper.colorSchemas.extendedRedColorSchema,
+	            colorScale = void 0,
 	
 	
-	        // getters
-	        getName = function getName(_ref) {
-	            var name = _ref.name;
-	            return name;
-	        },
-	            getValue = function getValue(_ref2) {
-	            var value = _ref2.value;
-	            return value;
-	        },
-	            getGroup = function getGroup(_ref3) {
-	            var group = _ref3.group;
-	            return group;
-	        },
-	            isAnimated = false,
-	
-	
-	        // events
-	        dispatcher = d3Dispatch.dispatch('customMouseOver', 'customMouseOut', 'customMouseMove');
+	        // Dispatcher object to broadcast the mouse events
+	        // Ref: https://github.com/mbostock/d3/wiki/Internals#d3_dispatch
+	        dispatcher = d3Dispatch.dispatch('customMouseOver', 'customMouseOut');
 	
 	        /**
-	         * This function creates the graph using the selection and data provided
-	         * @param {D3Selection} _selection A d3 selection that represents
-	         * the container(s) where the chart(s) will be rendered
-	         * @param {GroupedBarChartData} _data The data to attach and generate the chart
+	         * This function creates the graph using the selection as container
+	         * @param  {D3Selection} _selection A d3 selection that represents
+	         *                                  the container(s) where the chart(s) will be rendered
+	         * @param {HeatmapData} _data The data to attach and generate the chart
 	         */
 	        function exports(_selection) {
 	            _selection.each(function (_data) {
@@ -9478,47 +8683,12 @@ webpackJsonp([3,10],[
 	                chartHeight = height - margin.top - margin.bottom;
 	                data = cleanData(_data);
 	
-	                prepareData(data);
 	                buildScales();
-	                buildLayers();
+	                // buildAxis();
 	                buildSVG(this);
-	                drawGridLines();
-	                buildAxis();
-	                drawAxis();
-	                drawGroupedBar();
-	                addMouseEvents();
+	                drawBoxes();
+	                // drawAxis();
 	            });
-	        }
-	
-	        /**
-	         * Adds events to the container group if the environment is not mobile
-	         * Adding: mouseover, mouseout and mousemove
-	         */
-	        function addMouseEvents() {
-	            if (shouldShowTooltip()) {
-	                svg.on('mouseover', function (d) {
-	                    handleMouseOver(this, d);
-	                }).on('mouseout', function (d) {
-	                    handleMouseOut(this, d);
-	                }).on('mousemove', function (d) {
-	                    handleMouseMove(this, d);
-	                });
-	            }
-	
-	            svg.selectAll('.bar').on('mouseover', function (d) {
-	                handleBarsMouseOver(this, d);
-	            }).on('mouseout', function (d) {
-	                handleBarsMouseOut(this, d);
-	            });
-	        }
-	
-	        /**
-	         * Adjusts the position of the y axis' ticks
-	         * @param  {D3Selection} selection Y axis group
-	         * @return void
-	         */
-	        function adjustYTickLabels(selection) {
-	            selection.selectAll('.tick text').attr('transform', 'translate(' + yTickTextXOffset + ', ' + yTickTextYOffset + ')');
 	        }
 	
 	        /**
@@ -9527,90 +8697,38 @@ webpackJsonp([3,10],[
 	         */
 	        function buildAxis() {
 	            if (isHorizontal) {
-	                xAxis = d3Axis.axisBottom(xScale).ticks(xTicks, valueLabelFormat);
+	                xAxis = d3Axis.axisBottom(xScale).ticks(numOfHorizontalTicks, valueLabelFormat).tickSizeInner([-chartHeight]);
+	
 	                yAxis = d3Axis.axisLeft(yScale);
 	            } else {
 	                xAxis = d3Axis.axisBottom(xScale);
-	                yAxis = d3Axis.axisLeft(yScale).ticks(yTicks, valueLabelFormat);
+	
+	                yAxis = d3Axis.axisLeft(yScale).ticks(numOfVerticalTicks, valueLabelFormat);
 	            }
 	        }
 	
 	        /**
 	         * Builds containers for the chart, the axis and a wrapper for all of them
-	         * NOTE: The order of drawing of this group elements is really important,
-	         * as everything else will be drawn on top of them
+	         * Also applies the Margin convention
 	         * @private
 	         */
 	        function buildContainerGroups() {
-	            var container = svg.append('g').classed('container-group', true).attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+	            var container = svg.append('g').classed('container-group', true).attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 	
-	            container.append('g').classed('x-axis-group', true).append('g').classed('x axis', true);
-	            container.selectAll('.x-axis-group').append('g').classed('month-axis', true);
-	            container.append('g').classed('y-axis-group axis', true);
-	            container.append('g').classed('grid-lines-group', true);
 	            container.append('g').classed('chart-group', true);
+	            container.append('g').classed('x-axis-group axis', true);
+	            container.append('g').classed('y-axis-group axis', true);
 	            container.append('g').classed('metadata-group', true);
 	        }
 	
 	        /**
-	         * Builds the grouped layers layout
-	         * @return {D3Layout} Layout for drawing the chart
-	         * @private
-	         */
-	        function buildLayers() {
-	            layers = transformedData.map(function (item) {
-	                var ret = {};
-	
-	                groups.forEach(function (key) {
-	                    ret[key] = item[key];
-	                });
-	
-	                return assign({}, item, ret);
-	            });
-	        }
-	
-	        /**
-	         * Creates the x, y and color scales of the chart
-	         * @private
-	         */
-	        function buildScales() {
-	            var yMax = d3Array.max(data.map(getValue));
-	
-	            if (isHorizontal) {
-	                xScale = d3Scale.scaleLinear().domain([0, yMax]).rangeRound([0, chartWidth - 1]);
-	                // 1 pix for edge tick
-	
-	                yScale = d3Scale.scaleBand().domain(data.map(getName)).rangeRound([chartHeight, 0]).padding(0.1);
-	
-	                yScale2 = d3Scale.scaleBand().domain(data.map(getGroup)).rangeRound([yScale.bandwidth(), 0]).padding(0.1);
-	            } else {
-	                xScale = d3Scale.scaleBand().domain(data.map(getName)).rangeRound([0, chartWidth]).padding(0.1);
-	                xScale2 = d3Scale.scaleBand().domain(data.map(getGroup)).rangeRound([0, xScale.bandwidth()]).padding(0.1);
-	
-	                yScale = d3Scale.scaleLinear().domain([0, yMax]).rangeRound([chartHeight, 0]).nice();
-	            }
-	
-	            colorScale = d3Scale.scaleOrdinal().range(colorSchema).domain(data.map(getGroup));
-	
-	            categoryColorMap = colorScale.domain(data.map(getName)).domain().reduce(function (memo, item) {
-	                data.forEach(function (v) {
-	                    if (getName(v) == item) {
-	                        memo[v.name] = colorScale(v.group);
-	                        memo[v.group] = colorScale(v.group);
-	                        memo[v.group + item] = colorScale(v.group);
-	                    }
-	                });
-	                return memo;
-	            }, {});
-	        }
-	
-	        /**
+	         * Builds the SVG element that will contain the chart
 	         * @param  {HTMLElement} container DOM element that will work as the container of the graph
 	         * @private
 	         */
 	        function buildSVG(container) {
 	            if (!svg) {
-	                svg = d3Selection.select(container).append('svg').classed('britechart grouped-bar', true);
+	                svg = d3Selection.select(container).append('svg').classed('britechart heatmap-chart', true);
 	
 	                buildContainerGroups();
 	            }
@@ -9619,455 +8737,78 @@ webpackJsonp([3,10],[
 	        }
 	
 	        /**
-	         * Parses dates and values into JS Date objects and numbers
-	         * @param  {obj} data Raw data from JSON file
-	         * @return {obj}      Parsed data with values and dates
-	         */
-	        function cleanData(data) {
-	            return data.map(function (d) {
-	                d.value = +d[valueLabel];
-	                d.group = d[groupLabel];
-	                // for tooltip
-	                d.topicName = getGroup(d);
-	                d.name = d[nameLabel];
-	
-	                return d;
-	            });
-	        }
-	
-	        /**
-	         * Draws the x and y axis on the svg object within their
-	         * respective groups
+	         * Creates the x and y scales of the graph
 	         * @private
 	         */
-	        function drawAxis() {
-	            if (isHorizontal) {
-	                svg.select('.x-axis-group .axis.x').attr('transform', 'translate( 0, ' + chartHeight + ' )').call(xAxis);
-	
-	                svg.select('.y-axis-group.axis').attr('transform', 'translate( ' + -xAxisPadding.left + ', 0)').call(yAxis);
-	            } else {
-	                svg.select('.x-axis-group .axis.x').attr('transform', 'translate( 0, ' + chartHeight + ' )').call(xAxis);
-	
-	                svg.select('.y-axis-group.axis').attr('transform', 'translate( ' + -xAxisPadding.left + ', 0)').call(yAxis).call(adjustYTickLabels);
-	            }
+	        function buildScales() {
+	            colorScale = d3Scale.scaleLinear().range([colorSchema[0], colorSchema[colorSchema.length - 1]]).domain(d3Array.extent(data, function (d) {
+	                return d[2];
+	            })).interpolate(d3Interpolate.interpolateHcl);
 	        }
 	
 	        /**
-	         * Draws a vertical line to extend x-axis till the edges
-	         * @return {void}
+	         * Cleaning data adding the proper format
+	         * @param  {HeatmapData} originalData Data
+	         * @private
 	         */
-	        function drawHorizontalExtendedLine() {
-	            baseLine = svg.select('.grid-lines-group').selectAll('line.extended-x-line').data([0]).enter().append('line').attr('class', 'extended-x-line').attr('x1', xAxisPadding.left).attr('x2', chartWidth).attr('y1', chartHeight).attr('y2', chartHeight);
-	        }
-	
-	        /**
-	         * Draws a vertical line to extend y-axis till the edges
-	         * @return {void}
-	         */
-	        function drawVerticalExtendedLine() {
-	            baseLine = svg.select('.grid-lines-group').selectAll('line.extended-y-line').data([0]).enter().append('line').attr('class', 'extended-y-line').attr('y1', xAxisPadding.bottom).attr('y2', chartHeight).attr('x1', 0).attr('x2', 0);
-	        }
-	
-	        /**
-	         * Draws grid lines on the background of the chart
-	         * @return void
-	         */
-	        function drawGridLines() {
-	            var scale = isHorizontal ? xScale : yScale;
-	
-	            if (grid === 'horizontal' || grid === 'full') {
-	                svg.select('.grid-lines-group').selectAll('line.horizontal-grid-line').data(scale.ticks(yTicks).slice(1)).enter().append('line').attr('class', 'horizontal-grid-line').attr('x1', -xAxisPadding.left + 1).attr('x2', chartWidth).attr('y1', function (d) {
-	                    return yScale(d);
-	                }).attr('y2', function (d) {
-	                    return yScale(d);
-	                });
-	            }
-	
-	            if (grid === 'vertical' || grid === 'full') {
-	                svg.select('.grid-lines-group').selectAll('line.vertical-grid-line').data(scale.ticks(xTicks).slice(1)).enter().append('line').attr('class', 'vertical-grid-line').attr('y1', 0).attr('y2', chartHeight).attr('x1', function (d) {
-	                    return xScale(d);
-	                }).attr('x2', function (d) {
-	                    return xScale(d);
-	                });
-	            }
-	
-	            if (isHorizontal) {
-	                drawVerticalExtendedLine();
-	            } else {
-	                drawHorizontalExtendedLine();
-	            }
-	        }
-	
-	        /**
-	         * Draws the bars along the x axis
-	         * @param  {D3Selection} bars Selection of bars
-	         * @return {void}
-	         */
-	        function drawHorizontalBars(series) {
-	            // Enter + Update
-	            var bars = series.data(layers).enter().append('g').attr('transform', function (_ref4) {
-	                var key = _ref4.key;
-	                return 'translate(0,' + yScale(key) + ')';
-	            }).classed('layer', true).selectAll('.bar').data(function (_ref5) {
-	                var values = _ref5.values;
-	                return values;
-	            }).enter().append('rect').classed('bar', true).attr('x', 1).attr('y', function (d) {
-	                return yScale2(getGroup(d));
-	            }).attr('height', yScale2.bandwidth()).attr('fill', function (data) {
-	                return categoryColorMap[data.group];
+	        function cleanData(originalData) {
+	            var data = originalData.map(function (d) {
+	                return [+d[0], +d[1], +d[2]];
 	            });
 	
-	            if (isAnimated) {
-	                bars.style('opacity', 0.24).transition().delay(function (_, i) {
-	                    return animationDelays[i];
-	                }).duration(animationDuration).ease(ease).tween('attr.width', horizontalBarsTween);
-	            } else {
-	                bars.attr('width', function (d) {
-	                    return xScale(getValue(d));
-	                });
-	            }
+	            return data;
 	        }
 	
 	        /**
-	         * Draws the bars along the y axis
-	         * @param  {D3Selection} bars Selection of bars
+	         * Custom OnMouseOut event handler
 	         * @return {void}
+	         * @private
 	         */
-	        function drawVerticalBars(series) {
-	            // Enter + Update
-	            var bars = series.data(layers).enter().append('g').attr('transform', function (d) {
-	                return 'translate(' + xScale(d.key) + ',0)';
-	            }).classed('layer', true).selectAll('.bar').data(function (d) {
-	                return d.values;
-	            }).enter().append('rect').classed('bar', true).attr('x', function (d) {
-	                return xScale2(getGroup(d));
+	        function customOnMouseOut(e, d, chartWidth, chartHeight) {
+	            dispatcher.call('customMouseOut', e, d, d3Selection.mouse(e), [chartWidth, chartHeight]);
+	        }
+	
+	        /**
+	         * Custom OnMouseOver event handler
+	         * @return {void}
+	         * @private
+	         */
+	        function customOnMouseOver(e, d, chartWidth, chartHeight) {
+	            dispatcher.call('customMouseOver', e, d, d3Selection.mouse(e), [chartWidth, chartHeight]);
+	            console.log(d[2] + ' commits between ' + d[1] + ':00 and ' + d[1] + ':59 at ' + days[d[0]]);
+	        }
+	
+	        /**
+	         * Draws the boxes that form the heatmap
+	         * @private
+	         */
+	        function drawBoxes() {
+	            boxes = svg.select('.chart-group').selectAll('.box').data(data);
+	
+	            boxes.enter().append('rect').attr('x', function (d) {
+	                return d[1] * boxSize;
 	            }).attr('y', function (d) {
-	                return yScale(d.value);
-	            }).attr('width', xScale2.bandwidth).attr('fill', function (data) {
-	                return categoryColorMap[data.group];
+	                return d[0] * boxSize;
+	            }).attr('width', boxSize).attr('height', boxSize).style('fill', function (d) {
+	                return colorScale(d[2]);
+	            }).classed('box', true).on('mouseover', function (d) {
+	                customOnMouseOver(this, d, chartWidth, chartHeight);
+	            }).on('mouseout', function (d) {
+	                customOnMouseOut(this, d, chartWidth, chartHeight);
 	            });
-	
-	            if (isAnimated) {
-	                bars.style('opacity', 0.24).transition().delay(function (_, i) {
-	                    return animationDelays[i];
-	                }).duration(animationDuration).ease(ease).tween('attr.height', verticalBarsTween);
-	            } else {
-	                bars.attr('height', function (d) {
-	                    return chartHeight - yScale(getValue(d));
-	                });
-	            }
-	        }
-	
-	        /**
-	         * Draws the different areas into the chart-group element
-	         * @private
-	         */
-	        function drawGroupedBar() {
-	            var series = svg.select('.chart-group').selectAll('.layer');
-	
-	            if (isHorizontal) {
-	                drawHorizontalBars(series);
-	            } else {
-	                drawVerticalBars(series);
-	            }
-	            // Exit
-	            series.exit().transition().style('opacity', 0).remove();
-	        }
-	
-	        /**
-	         * Extract X position on the chart from a given mouse event
-	         * @param  {obj} event D3 mouse event
-	         * @return {Number}       Position on the x axis of the mouse
-	         * @private
-	         */
-	        function getMousePosition(event) {
-	            return d3Selection.mouse(event);
-	        }
-	
-	        /**
-	         * Finds out the data entry that is closer to the given position on pixels
-	         * @param  {Number} mouseX X position of the mouse
-	         * @return {obj}        Data entry that is closer to that x axis position
-	         */
-	        function getNearestDataPoint(mouseX) {
-	            var adjustedMouseX = mouseX - margin.left,
-	                epsilon = xScale2.bandwidth(),
-	                nearest = [];
-	
-	            layers.forEach(function (data) {
-	                var found = data.values.find(function (d2) {
-	                    return Math.abs(adjustedMouseX >= xScale(d2[nameLabel]) + xScale2(d2[groupLabel])) && Math.abs(adjustedMouseX - xScale2(d2[groupLabel]) - xScale(d2[nameLabel]) <= epsilon);
-	                });
-	
-	                if (found) {
-	                    found.values = data.values;
-	                    found.key = found.name;
-	                    nearest.push(found);
-	                }
-	            });
-	
-	            return nearest.length ? nearest[0] : undefined;
-	        }
-	
-	        /**
-	        * Finds out the data entry that is closer to the given position on pixels
-	        * @param  {Number} mouseX X position of the mouse
-	        * @return {obj}        Data entry that is closer to that x axis position
-	        */
-	        function getNearestDataPoint2(mouseY) {
-	            var adjustedMouseY = mouseY - margin.bottom,
-	                epsilon = yScale.bandwidth(),
-	                nearest = [];
-	
-	            layers.map(function (data) {
-	                var found = data.values.find(function (d2) {
-	                    return Math.abs(adjustedMouseY >= yScale(d2[nameLabel])) && Math.abs(adjustedMouseY - yScale(d2[nameLabel]) <= epsilon * 2);
-	                });
-	
-	                if (found) {
-	                    found.values = data.values;
-	                    found.key = found.name;
-	                    nearest.push(found);
-	                }
-	            });
-	
-	            return nearest.length ? nearest[0] : undefined;
-	        }
-	
-	        /**
-	         * Handles a mouseover event on top of a bar
-	         * @param  {obj} e the fired event
-	         * @param  {obj} d data of bar
-	         * @return {void}
-	         */
-	        function handleBarsMouseOver(e, d) {
-	            d3Selection.select(e).attr('fill', function () {
-	                return d3Color.color(categoryColorMap[d.group]).darker();
-	            });
-	        }
-	
-	        /**
-	         * Handles a mouseout event out of a bar
-	         * @param  {obj} e the fired event
-	         * @param  {obj} d data of bar
-	         * @return {void}
-	         */
-	        function handleBarsMouseOut(e, d) {
-	            d3Selection.select(e).attr('fill', function () {
-	                return categoryColorMap[d.group];
-	            });
-	        }
-	
-	        /**
-	         * MouseMove handler, calculates the nearest dataPoint to the cursor
-	         * and updates metadata related to it
-	         * @param  {obj} e the fired event
-	         * @param  {obj} d data of bar
-	         * @private
-	         */
-	        function handleMouseMove(e, d) {
-	            var _getMousePosition = getMousePosition(e),
-	                _getMousePosition2 = _slicedToArray(_getMousePosition, 2),
-	                mouseX = _getMousePosition2[0],
-	                mouseY = _getMousePosition2[1],
-	                dataPoint = isHorizontal ? getNearestDataPoint2(mouseY) : getNearestDataPoint(mouseX),
-	                x = void 0,
-	                y = void 0;
-	
-	            if (dataPoint) {
-	                // Move verticalMarker to that datapoint
-	                if (isHorizontal) {
-	                    x = mouseX - margin.left;
-	                    y = yScale(dataPoint.key) + yScale.bandwidth() / 2;
-	                } else {
-	                    x = xScale(dataPoint.key) + xScale2(dataPoint[groupLabel]);
-	                    y = mouseY - margin.bottom;
-	                }
-	                moveTooltipOriginXY(x, y);
-	
-	                // Emit event with xPosition for tooltip or similar feature
-	                dispatcher.call('customMouseMove', e, dataPoint, categoryColorMap, x, y);
-	            }
-	        }
-	
-	        /**
-	         * MouseOut handler, hides overlay and removes active class on verticalMarkerLine
-	         * It also resets the container of the vertical marker
-	         * @private
-	         */
-	        function handleMouseOut(e, d) {
-	            svg.select('.metadata-group').attr('transform', 'translate(9999, 0)');
-	            dispatcher.call('customMouseOut', e, d, d3Selection.mouse(e));
-	        }
-	
-	        /**
-	         * Mouseover handler, shows overlay and adds active class to verticalMarkerLine
-	         * @private
-	         */
-	        function handleMouseOver(e, d) {
-	            dispatcher.call('customMouseOver', e, d, d3Selection.mouse(e));
-	        }
-	
-	        /**
-	         * Animation tween of horizontal bars
-	         * @param  {obj} d data of bar
-	         * @return {void}
-	         */
-	        function horizontalBarsTween(d) {
-	            var node = d3Selection.select(this),
-	                i = d3Interpolate.interpolateRound(0, xScale(getValue(d))),
-	                j = d3Interpolate.interpolateNumber(0, 1);
-	
-	            return function (t) {
-	                node.attr('width', i(t)).style('opacity', j(t));
-	            };
-	        }
-	
-	        /**
-	         * Helper method to update the x position of the vertical marker
-	         * @param  {obj} dataPoint Data entry to extract info
-	         * @return void
-	         */
-	        function moveTooltipOriginXY(originXPosition, originYPosition) {
-	            svg.select('.metadata-group').attr('transform', 'translate(' + originXPosition + ',' + originYPosition + ')');
-	        }
-	
-	        /**
-	         * Prepare data for create chart.
-	         * @private
-	         */
-	        function prepareData(data) {
-	            groups = uniq(data.map(function (d) {
-	                return getGroup(d);
-	            }));
-	            transformedData = d3Collection.nest().key(getName).rollup(function (values) {
-	                var ret = {};
-	
-	                values.forEach(function (entry) {
-	                    if (entry && entry[groupLabel]) {
-	                        ret[entry[groupLabel]] = getValue(entry);
-	                    }
-	                });
-	                //for tooltip
-	                ret.values = values;
-	                return ret;
-	            }).entries(data).map(function (data) {
-	                return assign({}, {
-	                    total: d3Array.sum(d3Array.permute(data.value, groups)),
-	                    key: data.key
-	                }, data.value);
-	            });
-	        }
-	
-	        /**
-	         * Determines if we should add the tooltip related logic depending on the
-	         * size of the chart and the tooltipThreshold variable value
-	         * @return {boolean} Should we build the tooltip?
-	         * @private
-	         */
-	        function shouldShowTooltip() {
-	            return width > tooltipThreshold;
-	        }
-	
-	        /**
-	         * Animation tween of vertical bars
-	         * @param  {obj} d data of bar
-	         * @return {void}
-	         */
-	        function verticalBarsTween(d) {
-	            var node = d3Selection.select(this),
-	                i = d3Interpolate.interpolateRound(0, chartHeight - yScale(getValue(d))),
-	                y = d3Interpolate.interpolateRound(chartHeight, yScale(getValue(d))),
-	                j = d3Interpolate.interpolateNumber(0, 1);
-	
-	            return function (t) {
-	                node.attr('y', y(t)).attr('height', i(t)).style('opacity', j(t));
-	            };
 	        }
 	
 	        // API
 	
 	        /**
-	         * Gets or Sets the aspect ratio of the chart
-	         * @param  {Number} _x Desired aspect ratio for the graph
-	         * @return { (Number | Module) } Current aspect ratio or Area Chart module to chain calls
-	         * @public
-	         */
-	        exports.aspectRatio = function (_x) {
-	            if (!arguments.length) {
-	                return aspectRatio;
-	            }
-	            aspectRatio = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the colorSchema of the chart
-	         * @param  {String[]} _x Desired colorSchema for the graph
-	         * @return { colorSchema | module} Current colorSchema or Chart module to chain calls
-	         * @public
-	         */
-	        exports.colorSchema = function (_x) {
-	            if (!arguments.length) {
-	                return colorSchema;
-	            }
-	            colorSchema = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Chart exported to png and a download action is fired
-	         * @public
-	         */
-	        exports.exportChart = function (filename, title) {
-	            exportChart.call(exports, svg, filename, title);
-	        };
-	
-	        /**
-	         * Gets or Sets the groupLabel of the chart
-	         * @param  {String} _x Desired groupLabel for the graph
-	         * @return { groupLabel | module} Current groupLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.groupLabel = function (_x) {
-	            if (!arguments.length) {
-	                return groupLabel;
-	            }
-	            groupLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the grid mode.
-	         *
-	         * @param  {String} _x Desired mode for the grid ('vertical'|'horizontal'|'full')
-	         * @return { String | module} Current mode of the grid or Area Chart module to chain calls
-	         * @public
-	         */
-	        exports.grid = function (_x) {
-	            if (!arguments.length) {
-	                return grid;
-	            }
-	            grid = _x;
-	
-	            return this;
-	        };
-	
-	        /**
 	         * Gets or Sets the height of the chart
-	         * @param  {Number} _x Desired width for the graph
-	         * @return { height | module} Current height or Area Chart module to chain calls
+	         * @param  {number} _x Desired width for the graph
+	         * @return { height | module} Current height or Heatmap Chart module to chain calls
 	         * @public
 	         */
 	        exports.height = function (_x) {
 	            if (!arguments.length) {
 	                return height;
-	            }
-	            if (aspectRatio) {
-	                width = Math.ceil(_x / aspectRatio);
 	            }
 	            height = _x;
 	
@@ -10075,57 +8816,9 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Gets or Sets the horizontal direction of the chart
-	         * @param  {number} _x Desired horizontal direction for the graph
-	         * @return { isHorizontal | module} If it is horizontal or Bar Chart module to chain calls
-	         * @public
-	         */
-	        exports.isHorizontal = function (_x) {
-	            if (!arguments.length) {
-	                return isHorizontal;
-	            }
-	            isHorizontal = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the horizontal direction of the chart
-	         * @param  {number} _x Desired horizontal direction for the chart
-	         * @return { isHorizontal | module} If it is horizontal or module to chain calls
-	         * @deprecated
-	         */
-	        exports.horizontal = function (_x) {
-	            if (!arguments.length) {
-	                return isHorizontal;
-	            }
-	            isHorizontal = _x;
-	            console.log('We are deprecating the .horizontal() accessor, use .isHorizontal() instead');
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the isAnimated property of the chart, making it to animate when render.
-	         * By default this is 'false'
-	         *
-	         * @param  {Boolean} _x Desired animation flag
-	         * @return { isAnimated | module} Current isAnimated flag or Chart module
-	         * @public
-	         */
-	        exports.isAnimated = function (_x) {
-	            if (!arguments.length) {
-	                return isAnimated;
-	            }
-	            isAnimated = _x;
-	
-	            return this;
-	        };
-	
-	        /**
 	         * Gets or Sets the margin of the chart
-	         * @param  {Object} _x Margin object to get/set
-	         * @return { margin | module} Current margin or Area Chart module to chain calls
+	         * @param  {object} _x Margin object to get/set
+	         * @return { margin | module} Current margin or Heatmap Chart module to chain calls
 	         * @public
 	         */
 	        exports.margin = function (_x) {
@@ -10138,41 +8831,11 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Gets or Sets the nameLabel of the chart
-	         * @param  {Number} _x Desired dateLabel for the graph
-	         * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.nameLabel = function (_x) {
-	            if (!arguments.length) {
-	                return nameLabel;
-	            }
-	            nameLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the number of ticks of the y axis on the chart
-	         * @param  {Number} _x          Desired vertical ticks
-	         * @return {Number | module}    Current yTicks or Chart module to chain calls
-	         * @public
-	         */
-	        exports.yTicks = function (_x) {
-	            if (!arguments.length) {
-	                return yTicks;
-	            }
-	            yTicks = _x;
-	
-	            return this;
-	        };
-	
-	        /**
 	         * Exposes an 'on' method that acts as a bridge with the event dispatcher
 	         * We are going to expose this events:
-	         * customMouseOver, customMouseMove and customMouseOut
+	         * customMouseOver and customMouseOut
 	         *
-	         * @return {module} Bar Chart
+	         * @return {module} Heatmap Chart
 	         * @public
 	         */
 	        exports.on = function () {
@@ -10182,1490 +8845,26 @@ webpackJsonp([3,10],[
 	        };
 	
 	        /**
-	         * Gets or Sets the minimum width of the graph in order to show the tooltip
-	         * NOTE: This could also depend on the aspect ratio
-	         *
-	         * @param  {Object} _x Margin object to get/set
-	         * @return { tooltipThreshold | module} Current tooltipThreshold or Area Chart module to chain calls
-	         * @public
-	         */
-	        exports.tooltipThreshold = function (_x) {
-	            if (!arguments.length) {
-	                return tooltipThreshold;
-	            }
-	            tooltipThreshold = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the valueLabel of the chart
-	         * @param  {Number} _x Desired valueLabel for the graph
-	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.valueLabel = function (_x) {
-	            if (!arguments.length) {
-	                return valueLabel;
-	            }
-	            valueLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the valueLabelFormat of the chart
-	         * @param  {String[]} _x Desired valueLabelFormat for the graph
-	         * @return { valueLabelFormat | module} Current valueLabelFormat or Chart module to chain calls
-	         * @public
-	         */
-	        exports.valueLabelFormat = function (_x) {
-	            if (!arguments.length) {
-	                return valueLabelFormat;
-	            }
-	            valueLabelFormat = _x;
-	
-	            return this;
-	        };
-	
-	        /**
 	         * Gets or Sets the width of the chart
-	         * @param  {Number} _x Desired width for the graph
-	         * @return { width | module} Current width or Area Chart module to chain calls
+	         * @param  {number} _x Desired width for the graph
+	         * @return { width | module} Current width or Heatmap Chart module to chain calls
 	         * @public
 	         */
 	        exports.width = function (_x) {
 	            if (!arguments.length) {
 	                return width;
 	            }
-	            if (aspectRatio) {
-	                height = Math.ceil(_x * aspectRatio);
-	            }
 	            width = _x;
 	
 	            return this;
 	        };
 	
-	        /**
-	         * Gets or Sets the number of ticks of the x axis on the chart
-	         * @param  {Number} _x Desired xTicks
-	         * @return {Number | module} Current xTicks or Chart module to chain calls
-	         * @public
-	         */
-	        exports.xTicks = function (_x) {
-	            if (!arguments.length) {
-	                return xTicks;
-	            }
-	            xTicks = _x;
-	
-	            return this;
-	        };
-	
 	        return exports;
 	    };
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 47 */
-/***/ (function(module, exports) {
-
-	/**
-	 * lodash (Custom Build) <https://lodash.com/>
-	 * Build: `lodash modularize exports="npm" -o ./`
-	 * Copyright jQuery Foundation and other contributors <https://jquery.org/>
-	 * Released under MIT license <https://lodash.com/license>
-	 * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
-	 * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 */
-	
-	/** Used as references for various `Number` constants. */
-	var MAX_SAFE_INTEGER = 9007199254740991;
-	
-	/** `Object#toString` result references. */
-	var argsTag = '[object Arguments]',
-	    funcTag = '[object Function]',
-	    genTag = '[object GeneratorFunction]';
-	
-	/** Used to detect unsigned integer values. */
-	var reIsUint = /^(?:0|[1-9]\d*)$/;
-	
-	/**
-	 * A faster alternative to `Function#apply`, this function invokes `func`
-	 * with the `this` binding of `thisArg` and the arguments of `args`.
-	 *
-	 * @private
-	 * @param {Function} func The function to invoke.
-	 * @param {*} thisArg The `this` binding of `func`.
-	 * @param {Array} args The arguments to invoke `func` with.
-	 * @returns {*} Returns the result of `func`.
-	 */
-	function apply(func, thisArg, args) {
-	  switch (args.length) {
-	    case 0: return func.call(thisArg);
-	    case 1: return func.call(thisArg, args[0]);
-	    case 2: return func.call(thisArg, args[0], args[1]);
-	    case 3: return func.call(thisArg, args[0], args[1], args[2]);
-	  }
-	  return func.apply(thisArg, args);
-	}
-	
-	/**
-	 * The base implementation of `_.times` without support for iteratee shorthands
-	 * or max array length checks.
-	 *
-	 * @private
-	 * @param {number} n The number of times to invoke `iteratee`.
-	 * @param {Function} iteratee The function invoked per iteration.
-	 * @returns {Array} Returns the array of results.
-	 */
-	function baseTimes(n, iteratee) {
-	  var index = -1,
-	      result = Array(n);
-	
-	  while (++index < n) {
-	    result[index] = iteratee(index);
-	  }
-	  return result;
-	}
-	
-	/**
-	 * Creates a unary function that invokes `func` with its argument transformed.
-	 *
-	 * @private
-	 * @param {Function} func The function to wrap.
-	 * @param {Function} transform The argument transform.
-	 * @returns {Function} Returns the new function.
-	 */
-	function overArg(func, transform) {
-	  return function(arg) {
-	    return func(transform(arg));
-	  };
-	}
-	
-	/** Used for built-in method references. */
-	var objectProto = Object.prototype;
-	
-	/** Used to check objects for own properties. */
-	var hasOwnProperty = objectProto.hasOwnProperty;
-	
-	/**
-	 * Used to resolve the
-	 * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-	 * of values.
-	 */
-	var objectToString = objectProto.toString;
-	
-	/** Built-in value references. */
-	var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-	
-	/* Built-in method references for those with the same name as other `lodash` methods. */
-	var nativeKeys = overArg(Object.keys, Object),
-	    nativeMax = Math.max;
-	
-	/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
-	var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
-	
-	/**
-	 * Creates an array of the enumerable property names of the array-like `value`.
-	 *
-	 * @private
-	 * @param {*} value The value to query.
-	 * @param {boolean} inherited Specify returning inherited property names.
-	 * @returns {Array} Returns the array of property names.
-	 */
-	function arrayLikeKeys(value, inherited) {
-	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-	  // Safari 9 makes `arguments.length` enumerable in strict mode.
-	  var result = (isArray(value) || isArguments(value))
-	    ? baseTimes(value.length, String)
-	    : [];
-	
-	  var length = result.length,
-	      skipIndexes = !!length;
-	
-	  for (var key in value) {
-	    if ((inherited || hasOwnProperty.call(value, key)) &&
-	        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
-	      result.push(key);
-	    }
-	  }
-	  return result;
-	}
-	
-	/**
-	 * Assigns `value` to `key` of `object` if the existing value is not equivalent
-	 * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * for equality comparisons.
-	 *
-	 * @private
-	 * @param {Object} object The object to modify.
-	 * @param {string} key The key of the property to assign.
-	 * @param {*} value The value to assign.
-	 */
-	function assignValue(object, key, value) {
-	  var objValue = object[key];
-	  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
-	      (value === undefined && !(key in object))) {
-	    object[key] = value;
-	  }
-	}
-	
-	/**
-	 * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
-	 *
-	 * @private
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 */
-	function baseKeys(object) {
-	  if (!isPrototype(object)) {
-	    return nativeKeys(object);
-	  }
-	  var result = [];
-	  for (var key in Object(object)) {
-	    if (hasOwnProperty.call(object, key) && key != 'constructor') {
-	      result.push(key);
-	    }
-	  }
-	  return result;
-	}
-	
-	/**
-	 * The base implementation of `_.rest` which doesn't validate or coerce arguments.
-	 *
-	 * @private
-	 * @param {Function} func The function to apply a rest parameter to.
-	 * @param {number} [start=func.length-1] The start position of the rest parameter.
-	 * @returns {Function} Returns the new function.
-	 */
-	function baseRest(func, start) {
-	  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
-	  return function() {
-	    var args = arguments,
-	        index = -1,
-	        length = nativeMax(args.length - start, 0),
-	        array = Array(length);
-	
-	    while (++index < length) {
-	      array[index] = args[start + index];
-	    }
-	    index = -1;
-	    var otherArgs = Array(start + 1);
-	    while (++index < start) {
-	      otherArgs[index] = args[index];
-	    }
-	    otherArgs[start] = array;
-	    return apply(func, this, otherArgs);
-	  };
-	}
-	
-	/**
-	 * Copies properties of `source` to `object`.
-	 *
-	 * @private
-	 * @param {Object} source The object to copy properties from.
-	 * @param {Array} props The property identifiers to copy.
-	 * @param {Object} [object={}] The object to copy properties to.
-	 * @param {Function} [customizer] The function to customize copied values.
-	 * @returns {Object} Returns `object`.
-	 */
-	function copyObject(source, props, object, customizer) {
-	  object || (object = {});
-	
-	  var index = -1,
-	      length = props.length;
-	
-	  while (++index < length) {
-	    var key = props[index];
-	
-	    var newValue = customizer
-	      ? customizer(object[key], source[key], key, object, source)
-	      : undefined;
-	
-	    assignValue(object, key, newValue === undefined ? source[key] : newValue);
-	  }
-	  return object;
-	}
-	
-	/**
-	 * Creates a function like `_.assign`.
-	 *
-	 * @private
-	 * @param {Function} assigner The function to assign values.
-	 * @returns {Function} Returns the new assigner function.
-	 */
-	function createAssigner(assigner) {
-	  return baseRest(function(object, sources) {
-	    var index = -1,
-	        length = sources.length,
-	        customizer = length > 1 ? sources[length - 1] : undefined,
-	        guard = length > 2 ? sources[2] : undefined;
-	
-	    customizer = (assigner.length > 3 && typeof customizer == 'function')
-	      ? (length--, customizer)
-	      : undefined;
-	
-	    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
-	      customizer = length < 3 ? undefined : customizer;
-	      length = 1;
-	    }
-	    object = Object(object);
-	    while (++index < length) {
-	      var source = sources[index];
-	      if (source) {
-	        assigner(object, source, index, customizer);
-	      }
-	    }
-	    return object;
-	  });
-	}
-	
-	/**
-	 * Checks if `value` is a valid array-like index.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
-	 * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
-	 */
-	function isIndex(value, length) {
-	  length = length == null ? MAX_SAFE_INTEGER : length;
-	  return !!length &&
-	    (typeof value == 'number' || reIsUint.test(value)) &&
-	    (value > -1 && value % 1 == 0 && value < length);
-	}
-	
-	/**
-	 * Checks if the given arguments are from an iteratee call.
-	 *
-	 * @private
-	 * @param {*} value The potential iteratee value argument.
-	 * @param {*} index The potential iteratee index or key argument.
-	 * @param {*} object The potential iteratee object argument.
-	 * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
-	 *  else `false`.
-	 */
-	function isIterateeCall(value, index, object) {
-	  if (!isObject(object)) {
-	    return false;
-	  }
-	  var type = typeof index;
-	  if (type == 'number'
-	        ? (isArrayLike(object) && isIndex(index, object.length))
-	        : (type == 'string' && index in object)
-	      ) {
-	    return eq(object[index], value);
-	  }
-	  return false;
-	}
-	
-	/**
-	 * Checks if `value` is likely a prototype object.
-	 *
-	 * @private
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
-	 */
-	function isPrototype(value) {
-	  var Ctor = value && value.constructor,
-	      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
-	
-	  return value === proto;
-	}
-	
-	/**
-	 * Performs a
-	 * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
-	 * comparison between two values to determine if they are equivalent.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to compare.
-	 * @param {*} other The other value to compare.
-	 * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
-	 * @example
-	 *
-	 * var object = { 'a': 1 };
-	 * var other = { 'a': 1 };
-	 *
-	 * _.eq(object, object);
-	 * // => true
-	 *
-	 * _.eq(object, other);
-	 * // => false
-	 *
-	 * _.eq('a', 'a');
-	 * // => true
-	 *
-	 * _.eq('a', Object('a'));
-	 * // => false
-	 *
-	 * _.eq(NaN, NaN);
-	 * // => true
-	 */
-	function eq(value, other) {
-	  return value === other || (value !== value && other !== other);
-	}
-	
-	/**
-	 * Checks if `value` is likely an `arguments` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an `arguments` object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArguments(function() { return arguments; }());
-	 * // => true
-	 *
-	 * _.isArguments([1, 2, 3]);
-	 * // => false
-	 */
-	function isArguments(value) {
-	  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
-	  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
-	    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
-	}
-	
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-	
-	/**
-	 * Checks if `value` is array-like. A value is considered array-like if it's
-	 * not a function and has a `value.length` that's an integer greater than or
-	 * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
-	 * @example
-	 *
-	 * _.isArrayLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLike(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLike('abc');
-	 * // => true
-	 *
-	 * _.isArrayLike(_.noop);
-	 * // => false
-	 */
-	function isArrayLike(value) {
-	  return value != null && isLength(value.length) && !isFunction(value);
-	}
-	
-	/**
-	 * This method is like `_.isArrayLike` except that it also checks if `value`
-	 * is an object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an array-like object,
-	 *  else `false`.
-	 * @example
-	 *
-	 * _.isArrayLikeObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject(document.body.children);
-	 * // => true
-	 *
-	 * _.isArrayLikeObject('abc');
-	 * // => false
-	 *
-	 * _.isArrayLikeObject(_.noop);
-	 * // => false
-	 */
-	function isArrayLikeObject(value) {
-	  return isObjectLike(value) && isArrayLike(value);
-	}
-	
-	/**
-	 * Checks if `value` is classified as a `Function` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 *
-	 * _.isFunction(/abc/);
-	 * // => false
-	 */
-	function isFunction(value) {
-	  // The use of `Object#toString` avoids issues with the `typeof` operator
-	  // in Safari 8-9 which returns 'object' for typed array and other constructors.
-	  var tag = isObject(value) ? objectToString.call(value) : '';
-	  return tag == funcTag || tag == genTag;
-	}
-	
-	/**
-	 * Checks if `value` is a valid array-like length.
-	 *
-	 * **Note:** This method is loosely based on
-	 * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
-	 * @example
-	 *
-	 * _.isLength(3);
-	 * // => true
-	 *
-	 * _.isLength(Number.MIN_VALUE);
-	 * // => false
-	 *
-	 * _.isLength(Infinity);
-	 * // => false
-	 *
-	 * _.isLength('3');
-	 * // => false
-	 */
-	function isLength(value) {
-	  return typeof value == 'number' &&
-	    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-	}
-	
-	/**
-	 * Checks if `value` is the
-	 * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
-	 * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.1.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-	
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 4.0.0
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-	
-	/**
-	 * Assigns own enumerable string keyed properties of source objects to the
-	 * destination object. Source objects are applied from left to right.
-	 * Subsequent sources overwrite property assignments of previous sources.
-	 *
-	 * **Note:** This method mutates `object` and is loosely based on
-	 * [`Object.assign`](https://mdn.io/Object/assign).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @since 0.10.0
-	 * @category Object
-	 * @param {Object} object The destination object.
-	 * @param {...Object} [sources] The source objects.
-	 * @returns {Object} Returns `object`.
-	 * @see _.assignIn
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 * }
-	 *
-	 * function Bar() {
-	 *   this.c = 3;
-	 * }
-	 *
-	 * Foo.prototype.b = 2;
-	 * Bar.prototype.d = 4;
-	 *
-	 * _.assign({ 'a': 0 }, new Foo, new Bar);
-	 * // => { 'a': 1, 'c': 3 }
-	 */
-	var assign = createAssigner(function(object, source) {
-	  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
-	    copyObject(source, keys(source), object);
-	    return;
-	  }
-	  for (var key in source) {
-	    if (hasOwnProperty.call(source, key)) {
-	      assignValue(object, key, source[key]);
-	    }
-	  }
-	});
-	
-	/**
-	 * Creates an array of the own enumerable property names of `object`.
-	 *
-	 * **Note:** Non-object values are coerced to objects. See the
-	 * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
-	 * for more details.
-	 *
-	 * @static
-	 * @since 0.1.0
-	 * @memberOf _
-	 * @category Object
-	 * @param {Object} object The object to query.
-	 * @returns {Array} Returns the array of property names.
-	 * @example
-	 *
-	 * function Foo() {
-	 *   this.a = 1;
-	 *   this.b = 2;
-	 * }
-	 *
-	 * Foo.prototype.c = 3;
-	 *
-	 * _.keys(new Foo);
-	 * // => ['a', 'b'] (iteration order is not guaranteed)
-	 *
-	 * _.keys('hi');
-	 * // => ['0', '1']
-	 */
-	function keys(object) {
-	  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
-	}
-	
-	module.exports = assign;
-
-
-/***/ }),
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
-	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-	    'use strict';
-	
-	    var d3Ease = __webpack_require__(5);
-	    var d3Format = __webpack_require__(9);
-	    var d3Selection = __webpack_require__(1);
-	    var d3Transition = __webpack_require__(15);
-	    var d3TimeFormat = __webpack_require__(14);
-	
-	    var _require = __webpack_require__(20),
-	        axisTimeCombinations = _require.axisTimeCombinations;
-	
-	    var _require2 = __webpack_require__(49),
-	        formatIntegerValue = _require2.formatIntegerValue,
-	        formatDecimalValue = _require2.formatDecimalValue;
-	
-	    var _require3 = __webpack_require__(39),
-	        isInteger = _require3.isInteger;
-	
-	    /**
-	     * Tooltip Component reusable API class that renders a
-	     * simple and configurable tooltip element for Britechart's
-	     * line chart or stacked area chart.
-	     *
-	     * @module Tooltip
-	     * @tutorial tooltip
-	     * @requires d3-array, d3-axis, d3-dispatch, d3-format, d3-scale, d3-selection, d3-transition
-	     *
-	     * @example
-	     * var lineChart = line(),
-	     *     tooltip = tooltip();
-	     *
-	     * tooltip
-	     *     .title('Tooltip title');
-	     *
-	     * lineChart
-	     *     .width(500)
-	     *     .on('customMouseOver', function() {
-	     *          tooltip.show();
-	     *     })
-	     *     .on('customMouseMove', function(dataPoint, topicColorMap, dataPointXPosition) {
-	     *          tooltip.update(dataPoint, topicColorMap, dataPointXPosition);
-	     *     })
-	     *     .on('customMouseOut', function() {
-	     *          tooltip.hide();
-	     *     });
-	     *
-	     * d3Selection.select('.css-selector')
-	     *     .datum(dataset)
-	     *     .call(lineChart);
-	     *
-	     * d3Selection.select('.metadata-group .hover-marker')
-	     *     .datum([])
-	     *     .call(tooltip);
-	     *
-	     */
-	
-	
-	    return function module() {
-	
-	        var margin = {
-	            top: 2,
-	            right: 2,
-	            bottom: 2,
-	            left: 2
-	        },
-	            width = 250,
-	            height = 45,
-	            title = 'Tooltip title',
-	            valueFormat = null,
-	
-	
-	        // tooltip
-	        tooltip = void 0,
-	            tooltipOffset = {
-	            y: -55,
-	            x: 0
-	        },
-	            tooltipMaxTopicLength = 170,
-	            tooltipTextContainer = void 0,
-	            tooltipDivider = void 0,
-	            tooltipBody = void 0,
-	            tooltipTitle = void 0,
-	            tooltipWidth = 250,
-	            tooltipHeight = 48,
-	            tooltipBorderRadius = 3,
-	            ttTextX = 0,
-	            ttTextY = 37,
-	            textSize = void 0,
-	            entryLineLimit = 3,
-	
-	
-	        // Animations
-	        mouseChaseDuration = 100,
-	            ease = d3Ease.easeQuadInOut,
-	            circleYOffset = 8,
-	            colorMap = void 0,
-	            bodyFillColor = '#FFFFFF',
-	            borderStrokeColor = '#D2D6DF',
-	            titleFillColor = '#6D717A',
-	            textFillColor = '#282C35',
-	            tooltipTextColor = '#000000',
-	            dateLabel = 'date',
-	            valueLabel = 'value',
-	            nameLabel = 'name',
-	            topicLabel = 'topics',
-	            defaultAxisSettings = axisTimeCombinations.DAY_MONTH,
-	            dateFormat = null,
-	            topicsOrder = [],
-	
-	
-	        // formats
-	        monthDayYearFormat = d3TimeFormat.timeFormat('%b %d, %Y'),
-	            monthDayHourFormat = d3TimeFormat.timeFormat('%b %d, %I %p'),
-	            locale = void 0,
-	            chartWidth = void 0,
-	            chartHeight = void 0,
-	            data = void 0,
-	            svg = void 0;
-	
-	        /**
-	         * This function creates the graph using the selection as container
-	         * @param {D3Selection} _selection A d3 selection that represents
-	         *                                  the container(s) where the chart(s) will be rendered
-	         * @param {Object} _data The data to attach and generate the chart
-	         */
-	        function exports(_selection) {
-	            _selection.each(function (_data) {
-	                chartWidth = width - margin.left - margin.right;
-	                chartHeight = height - margin.top - margin.bottom;
-	                data = _data;
-	
-	                buildSVG(this);
-	            });
-	        }
-	
-	        /**
-	         * Builds containers for the tooltip
-	         * Also applies the Margin convention
-	         * @private
-	         */
-	        function buildContainerGroups() {
-	            var container = svg.append('g').classed('tooltip-container-group', true).attr('transform', 'translate( ' + margin.left + ', ' + margin.top + ')');
-	
-	            container.append('g').classed('tooltip-group', true);
-	        }
-	
-	        /**
-	         * Builds the SVG element that will contain the chart
-	         * @param  {HTMLElement} container DOM element that will work as the container of the graph
-	         * @private
-	         */
-	        function buildSVG(container) {
-	            if (!svg) {
-	                svg = d3Selection.select(container).append('g').classed('britechart britechart-tooltip', true);
-	
-	                buildContainerGroups();
-	                drawTooltip();
-	            }
-	            svg.transition().attr('width', width).attr('height', height);
-	
-	            // Hidden by default
-	            exports.hide();
-	        }
-	
-	        /**
-	         * Resets the tooltipBody content
-	         * @return void
-	         */
-	        function cleanContent() {
-	            tooltipBody.selectAll('text').remove();
-	            tooltipBody.selectAll('circle').remove();
-	        }
-	
-	        /**
-	         * Draws the different elements of the Tooltip box
-	         * @return void
-	         */
-	        function drawTooltip() {
-	            tooltipTextContainer = svg.selectAll('.tooltip-group').append('g').classed('tooltip-text', true);
-	
-	            tooltip = tooltipTextContainer.append('rect').classed('tooltip-text-container', true).attr('x', -tooltipWidth / 4 + 8).attr('y', 0).attr('width', tooltipWidth).attr('height', tooltipHeight).attr('rx', tooltipBorderRadius).attr('ry', tooltipBorderRadius).style('fill', bodyFillColor).style('stroke', borderStrokeColor).style('stroke-width', 1);
-	
-	            tooltipTitle = tooltipTextContainer.append('text').classed('tooltip-title', true).attr('x', -tooltipWidth / 4 + 17).attr('dy', '.35em').attr('y', 16).style('fill', titleFillColor);
-	
-	            tooltipDivider = tooltipTextContainer.append('line').classed('tooltip-divider', true).attr('x1', -tooltipWidth / 4 + 15).attr('x2', 265).attr('y1', 31).attr('y2', 31).style('stroke', borderStrokeColor);
-	
-	            tooltipBody = tooltipTextContainer.append('g').classed('tooltip-body', true).style('transform', 'translateY(8px)').style('fill', textFillColor);
-	        }
-	
-	        /**
-	         * Formats the value depending on its characteristics
-	         * @param  {Number} value Value to format
-	         * @return {Number}       Formatted value
-	         */
-	        function getFormattedValue(value) {
-	            var valueFormatter = formatDecimalValue;
-	
-	            if (!value) {
-	                return 0;
-	            }
-	            if (valueFormat) {
-	                valueFormatter = d3Format.format(valueFormat);
-	            } else if (isInteger(value)) {
-	                valueFormatter = formatIntegerValue;
-	            }
-	
-	            return valueFormatter(value);
-	        }
-	
-	        /**
-	         * Calculates the desired position for the tooltip
-	         * @param  {Number} mouseX             Current horizontal mouse position
-	         * @param  {Number} mouseY             Current vertical mouse position
-	         * @return {Number[]}                  X and Y position
-	         */
-	        function getTooltipPosition(_ref) {
-	            var _ref2 = _slicedToArray(_ref, 2),
-	                mouseX = _ref2[0],
-	                mouseY = _ref2[1];
-	
-	            var tooltipX = void 0,
-	                tooltipY = void 0;
-	
-	            // show tooltip to the right
-	            if (mouseX - tooltipWidth < 0) {
-	                // Tooltip on the right
-	                tooltipX = tooltipWidth - 185;
-	            } else {
-	                // Tooltip on the left
-	                tooltipX = -205;
-	            }
-	
-	            if (mouseY) {
-	                tooltipY = tooltipOffset.y;
-	                // tooltipY = mouseY + tooltipOffset.y;
-	            } else {
-	                tooltipY = tooltipOffset.y;
-	            }
-	
-	            return [tooltipX, tooltipY];
-	        }
-	
-	        /**
-	         * Extracts the value from the data object
-	         * @param  {Object} data Data value containing the info
-	         * @return {String}      Value to show
-	         */
-	        function getValueText(data) {
-	            var value = data[valueLabel];
-	            var valueText = void 0;
-	
-	            if (data.missingValue) {
-	                valueText = '-';
-	            } else {
-	                valueText = getFormattedValue(value).toString();
-	            }
-	
-	            return valueText;
-	        }
-	
-	        /**
-	         * Resets the height of the tooltip and the pointer for the text
-	         * position
-	         */
-	        function resetSizeAndPositionPointers() {
-	            tooltipHeight = 48;
-	            ttTextY = 37;
-	            ttTextX = 0;
-	        }
-	
-	        /**
-	         * Draws the data entries inside the tooltip for a given topic
-	         * @param  {Object} topic Topic to extract data from
-	         * @return void
-	         */
-	        function updateTopicContent(topic) {
-	            var name = topic[nameLabel],
-	                tooltipRight = void 0,
-	                tooltipLeftText = void 0,
-	                tooltipRightText = void 0,
-	                elementText = void 0;
-	
-	            tooltipLeftText = topic.topicName || name;
-	            tooltipRightText = getValueText(topic);
-	
-	            elementText = tooltipBody.append('text').classed('tooltip-left-text', true).attr('dy', '1em').attr('x', ttTextX - 20).attr('y', ttTextY).style('fill', tooltipTextColor).text(tooltipLeftText).call(textWrap, tooltipMaxTopicLength, -25);
-	
-	            tooltipRight = tooltipBody.append('text').classed('tooltip-right-text', true).attr('dy', '1em').attr('x', ttTextX + 8).attr('y', ttTextY).style('fill', tooltipTextColor).text(tooltipRightText);
-	
-	            textSize = elementText.node().getBBox();
-	            tooltipHeight += textSize.height + 5;
-	
-	            // Not sure if necessary
-	            tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4);
-	
-	            tooltipBody.append('circle').classed('tooltip-circle', true).attr('cx', 23 - tooltipWidth / 4).attr('cy', ttTextY + circleYOffset).attr('r', 5).style('fill', colorMap[name]).style('stroke-width', 1);
-	
-	            ttTextY += textSize.height + 7;
-	        }
-	
-	        /**
-	         * Updates size and position of tooltip depending on the side of the chart we are in
-	         * TODO: This needs a refactor, following the mini-tooltip code.
-	         *
-	         * @param  {Object} dataPoint DataPoint of the tooltip
-	         * @param  {Number} xPosition DataPoint's x position in the chart
-	         * @param  {Number} xPosition DataPoint's y position in the chart
-	         * @return void
-	         */
-	        function updatePositionAndSize(dataPoint, xPosition, yPosition) {
-	            var _getTooltipPosition = getTooltipPosition([xPosition, yPosition]),
-	                _getTooltipPosition2 = _slicedToArray(_getTooltipPosition, 2),
-	                tooltipX = _getTooltipPosition2[0],
-	                tooltipY = _getTooltipPosition2[1];
-	
-	            tooltip.attr('width', tooltipWidth).attr('height', tooltipHeight + 10);
-	
-	            tooltipTextContainer.transition().duration(mouseChaseDuration).ease(ease).attr('transform', 'translate(' + tooltipX + ', ' + tooltipY + ')');
-	
-	            tooltipDivider.attr('x2', tooltipWidth - 60);
-	        }
-	
-	        /**
-	         * Updates value of tooltipTitle with the data meaning and the date
-	         * @param  {Object} dataPoint Point of data to use as source
-	         * @return void
-	         */
-	        function updateTitle(dataPoint) {
-	            var date = new Date(dataPoint[dateLabel]),
-	                tooltipTitleText = title + ' - ' + formatDate(date);
-	
-	            tooltipTitle.text(tooltipTitleText);
-	        }
-	
-	        /**
-	         * Figures out which date format to use when showing the date of the current data entry
-	         * @return {Function} The proper date formatting function
-	         */
-	        function formatDate(date) {
-	            var settings = dateFormat || defaultAxisSettings;
-	            var format = null;
-	            var localeOptions = { month: 'short', day: 'numeric' };
-	
-	            if (settings === axisTimeCombinations.DAY_MONTH || settings === axisTimeCombinations.MONTH_YEAR) {
-	                format = monthDayYearFormat;
-	                localeOptions.year = 'numeric';
-	            } else if (settings === axisTimeCombinations.HOUR_DAY || settings === axisTimeCombinations.MINUTE_HOUR) {
-	                format = monthDayHourFormat;
-	                localeOptions.hour = 'numeric';
-	            }
-	
-	            if (locale && typeof Intl !== 'undefined' && (typeof Intl === 'undefined' ? 'undefined' : _typeof(Intl)) === 'object' && Intl.DateTimeFormat) {
-	                var f = Intl.DateTimeFormat(locale, localeOptions);
-	
-	                return f.format(date);
-	            }
-	
-	            return format(date);
-	        }
-	
-	        /**
-	         * Helper method to sort the passed topics array by the names passed int he order arary
-	         * @param  {Object[]} topics    Topics data, retrieved from datapoint passed by line chart
-	         * @param  {Object[]} order     Array of names in the order to sort topics by
-	         * @return {Object[]}           sorted topics object
-	         */
-	        function _sortByTopicsOrder(topics) {
-	            var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : topicsOrder;
-	
-	            return order.map(function (orderName) {
-	                return topics.filter(function (_ref3) {
-	                    var name = _ref3.name;
-	                    return name === orderName;
-	                })[0];
-	            });
-	        }
-	
-	        /**
-	         * Sorts topic by alphabetical order for arrays of objects with a name proeprty
-	         * @param  {Array} topics   List of topic objects
-	         * @return {Array}          List of topic name strings
-	         */
-	        function _sortByAlpha(topics) {
-	            return topics.map(function (d) {
-	                return d;
-	            }).sort(function (a, b) {
-	                if (a.name > b.name) return 1;
-	                if (a.name === b.name) return 0;
-	                return -1;
-	            });
-	
-	            var otherIndex = topics.map(function (_ref4) {
-	                var name = _ref4.name;
-	                return name;
-	            }).indexOf('Other');
-	
-	            if (otherIndex >= 0) {
-	                var other = topics.splice(otherIndex, 1);
-	
-	                topics = topics.concat(other);
-	            }
-	        }
-	
-	        /**
-	         * Wraps a text given the text, width, x position and textFormatter function
-	         * @param  {D3Selection} text  Selection with the text to wrap inside
-	         * @param  {Number} width Desired max width for that line
-	         * @param  {Number} xpos  Initial x position of the text
-	         *
-	         * REF: http://bl.ocks.org/mbostock/7555321
-	         * More discussions on https://github.com/mbostock/d3/issues/1642
-	         */
-	        function textWrap(text, width, xpos) {
-	            xpos = xpos || 0;
-	
-	            text.each(function () {
-	                var words, word, line, lineNumber, lineHeight, y, dy, tspan;
-	
-	                text = d3Selection.select(this);
-	
-	                words = text.text().split(/\s+/).reverse();
-	                line = [];
-	                lineNumber = 0;
-	                lineHeight = 1.2;
-	                y = text.attr('y');
-	                dy = parseFloat(text.attr('dy'));
-	                tspan = text.text(null).append('tspan').attr('x', xpos).attr('y', y).attr('dy', dy + 'em');
-	
-	                while (word = words.pop()) {
-	                    line.push(word);
-	                    tspan.text(line.join(' '));
-	
-	                    if (tspan.node().getComputedTextLength() > width) {
-	                        line.pop();
-	                        tspan.text(line.join(' '));
-	
-	                        if (lineNumber < entryLineLimit - 1) {
-	                            line = [word];
-	                            tspan = text.append('tspan').attr('x', xpos).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
-	                        }
-	                    }
-	                }
-	            });
-	        }
-	
-	        /**
-	         * Draws the data entries inside the tooltip
-	         * @param  {Object} dataPoint   Data entry from to take the info
-	         * @return void
-	         */
-	        function updateContent(dataPoint) {
-	            var topics = dataPoint[topicLabel];
-	
-	            // sort order by topicsOrder array if passed
-	            if (topicsOrder.length) {
-	                topics = _sortByTopicsOrder(topics);
-	            } else if (topics.length && topics[0].name) {
-	                topics = _sortByAlpha(topics);
-	            }
-	
-	            cleanContent();
-	            updateTitle(dataPoint);
-	            resetSizeAndPositionPointers();
-	            topics.forEach(updateTopicContent);
-	        }
-	
-	        /**
-	         * Updates tooltip title, content, size and position
-	         * sorts by alphatical name order if not forced order given
-	         *
-	         * @param  {lineChartPointByDate} dataPoint  Current datapoint to show info about
-	         * @param  {Number} xPosition           Position of the mouse on the X axis
-	         * @return void
-	         */
-	        function updateTooltip(dataPoint, xPosition, yPosition) {
-	            updateContent(dataPoint);
-	            updatePositionAndSize(dataPoint, xPosition, yPosition);
-	        }
-	
-	        // API
-	
-	        /**
-	         * constants to be used to force the x axis to respect a certain granularity
-	         * current options: HOUR_DAY, DAY_MONTH, MONTH_YEAR
-	         * @example tooltip.dateFormat(tooltip.axisTimeCombinations.HOUR_DAY)
-	         */
-	        exports.axisTimeCombinations = axisTimeCombinations;
-	
-	        /**
-	         * Gets or Sets the dateLabel of the data
-	         * @param  {Number} _x Desired dateLabel
-	         * @return { dateLabel | module} Current dateLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.dateLabel = function (_x) {
-	            if (!arguments.length) {
-	                return dateLabel;
-	            }
-	            dateLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Exposes the ability to force the tooltip to use a certain date format
-	         * @param  {String} _x Desired format
-	         * @return { (String|Module) }    Current format or module to chain calls
-	         */
-	        exports.dateFormat = function (_x) {
-	            if (!arguments.length) {
-	                return dateFormat || defaultAxisSettings;
-	            }
-	            dateFormat = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Hides the tooltip
-	         * @return {Module} Tooltip module to chain calls
-	         * @public
-	         */
-	        exports.hide = function () {
-	            svg.style('display', 'none');
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Pass locale for the tooltip to render the date in
-	         * @param  {String} _x  must be a locale tag like 'en-US' or 'fr-FR'
-	         * @return { (String|Module) }    Current locale or module to chain calls
-	         */
-	        exports.locale = function (_x) {
-	            if (!arguments.length) {
-	                return locale;
-	            }
-	            locale = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the nameLabel of the data
-	         * @param  {Number} _x Desired nameLabel
-	         * @return { nameLabel | module} Current nameLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.nameLabel = function (_x) {
-	            if (!arguments.length) {
-	                return nameLabel;
-	            }
-	            nameLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Shows the tooltip
-	         * @return {Module} Tooltip module to chain calls
-	         * @public
-	         */
-	        exports.show = function () {
-	            svg.style('display', 'block');
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Pass an override for the ordering of your tooltip
-	         * @param  {Object[]} _x    Array of the names of your tooltip items
-	         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
-	         * @public
-	         */
-	        exports.topicsOrder = function (_x) {
-	            if (!arguments.length) {
-	                return topicsOrder;
-	            }
-	            topicsOrder = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the title of the tooltip
-	         * @param  {string} _x Desired title
-	         * @return { string | module} Current title or module to chain calls
-	         * @public
-	         */
-	        exports.title = function (_x) {
-	            if (!arguments.length) {
-	                return title;
-	            }
-	            title = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the topicLabel of the data
-	         * @param  {Number} _x Desired topicLabel
-	         * @return { topicLabel | module} Current topicLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.topicLabel = function (_x) {
-	            if (!arguments.length) {
-	                return topicLabel;
-	            }
-	            topicLabel = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Updates the position and content of the tooltip
-	         * @param  {Object} dataPoint    Datapoint to represent
-	         * @param  {Object} colorMapping Color scheme of the topics
-	         * @param  {Number} position     X-scale position in pixels
-	         * @return {Module} Tooltip module to chain calls
-	         * @public
-	         */
-	        exports.update = function (dataPoint, colorMapping, xPosition) {
-	            var yPosition = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-	
-	            colorMap = colorMapping;
-	            updateTooltip(dataPoint, xPosition, yPosition);
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the valueFormat of the tooltip
-	         * @param  {String} _x Desired valueFormat
-	         * @return { String | module} Current valueFormat or module to chain calls
-	         * @public
-	         */
-	        exports.valueFormat = function (_x) {
-	            if (!arguments.length) {
-	                return valueFormat;
-	            }
-	            valueFormat = _x;
-	
-	            return this;
-	        };
-	
-	        /**
-	         * Gets or Sets the valueLabel of the data
-	         * @param  {Number} _x Desired valueLabel
-	         * @return { valueLabel | module} Current valueLabel or Chart module to chain calls
-	         * @public
-	         */
-	        exports.valueLabel = function (_x) {
-	            if (!arguments.length) {
-	                return valueLabel;
-	            }
-	            valueLabel = _x;
-	
-	            return this;
-	        };
-	
-	        return exports;
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
-	
-	!(__WEBPACK_AMD_DEFINE_RESULT__ = function (require) {
-	    'use strict';
-	
-	    var d3Format = __webpack_require__(9);
-	
-	    var integerValueFormats = {
-	        small: {
-	            limit: 10,
-	            format: d3Format.format('')
-	        },
-	        medium: {
-	            limit: 1000,
-	            format: d3Format.format('')
-	        },
-	        large: {
-	            limit: null,
-	            format: d3Format.format('.2s')
-	        }
-	    };
-	    var decimalValueFormats = {
-	        small: {
-	            limit: 10,
-	            format: d3Format.format('.3f')
-	        },
-	        medium: {
-	            limit: 100,
-	            format: d3Format.format('.1f')
-	        },
-	        large: {
-	            limit: null,
-	            format: d3Format.format('.2s')
-	        }
-	    };
-	
-	    function getValueSize(value, limits) {
-	        var size = 'large';
-	
-	        if (value < limits.small.limit) {
-	            size = 'small';
-	        } else if (value < limits.medium.limit) {
-	            size = 'medium';
-	        }
-	        return size;
-	    }
-	
-	    /**
-	     * Formats an integer value depending on its value range
-	     * @param  {Number} value Decimal point value to format
-	     * @return {Number}       Formatted value to show
-	     */
-	    function formatIntegerValue(value) {
-	        var size = getValueSize(value, integerValueFormats);
-	        var format = integerValueFormats[size].format;
-	
-	        return format(value);
-	    }
-	
-	    /**
-	     * Formats a floating point value depending on its value range
-	     * @param  {Number} value Decimal point value to format
-	     * @return {Number}       Formatted value to show
-	     */
-	    function formatDecimalValue(value) {
-	        var size = getValueSize(value, decimalValueFormats);
-	        var format = decimalValueFormats[size].format;
-	
-	        return format(value);
-	    }
-	
-	    return {
-	        formatDecimalValue: formatDecimalValue,
-	        formatIntegerValue: formatIntegerValue
-	    };
-	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-
-/***/ }),
-/* 50 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -11674,35 +8873,878 @@ webpackJsonp([3,10],[
 	    'use strict';
 	
 	    var _ = __webpack_require__(26),
-	        jsonThreeSources = __webpack_require__(51);
+	        jsonGithubCommits = __webpack_require__(54);
 	
-	    function GroupedBarChartDataBuilder(config) {
-	        this.Klass = GroupedBarChartDataBuilder;
+	    function HeatmapDataBuilder(config) {
+	        this.Klass = HeatmapDataBuilder;
 	
 	        this.config = _.defaults({}, config);
 	
-	        this.with3Sources = function () {
-	            var attributes = _.extend({}, this.config, jsonThreeSources);
+	        this.withGithubCommits = function () {
+	            var attributes = _.extend({}, this.config, jsonGithubCommits);
 	
 	            return new this.Klass(attributes);
 	        };
 	
 	        this.build = function () {
-	            return this.config;
+	            return this.config.data;
 	        };
 	    }
 	
 	    return {
-	        GroupedBarChartDataBuilder: GroupedBarChartDataBuilder
+	        HeatmapDataBuilder: HeatmapDataBuilder
 	    };
 	}.call(exports, __webpack_require__, exports, module), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 
 /***/ }),
-/* 51 */
+/* 54 */
 /***/ (function(module, exports) {
 
-	module.exports = {"data":[{"stack":"shiny","name":"Direct1","views":3,"date":"2011-01-05"},{"stack":"shiny","name":"Direct2","views":10,"date":"2011-01-06"},{"stack":"shiny","name":"Direct3","views":16,"date":"2011-01-07"},{"stack":"shiny","name":"Direct4","views":23,"date":"2011-01-08"},{"stack":"radiant","name":"Eventbrite1","views":23,"date":"2011-01-05"},{"stack":"radiant","name":"Eventbrite2","views":16,"date":"2011-01-06"},{"stack":"radiant","name":"Eventbrite3","views":10,"date":"2011-01-07"},{"stack":"radiant","name":"Eventbrite4","views":4,"date":"2011-01-08"},{"stack":"luminous","name":"Email1","views":10,"date":"2011-01-05"},{"stack":"luminous","name":"Email2","views":20,"date":"2011-01-06"},{"stack":"luminous","name":"Email3","views":26,"date":"2011-01-07"},{"stack":"luminous","name":"Email4","views":33,"date":"2011-01-08"}]}
+	module.exports = {
+		"data": [
+			[
+				0,
+				0,
+				7
+			],
+			[
+				0,
+				1,
+				0
+			],
+			[
+				0,
+				2,
+				1
+			],
+			[
+				0,
+				3,
+				0
+			],
+			[
+				0,
+				4,
+				0
+			],
+			[
+				0,
+				5,
+				0
+			],
+			[
+				0,
+				6,
+				0
+			],
+			[
+				0,
+				7,
+				9
+			],
+			[
+				0,
+				8,
+				7
+			],
+			[
+				0,
+				9,
+				26
+			],
+			[
+				0,
+				10,
+				30
+			],
+			[
+				0,
+				11,
+				26
+			],
+			[
+				0,
+				12,
+				19
+			],
+			[
+				0,
+				13,
+				23
+			],
+			[
+				0,
+				14,
+				13
+			],
+			[
+				0,
+				15,
+				19
+			],
+			[
+				0,
+				16,
+				22
+			],
+			[
+				0,
+				17,
+				23
+			],
+			[
+				0,
+				18,
+				14
+			],
+			[
+				0,
+				19,
+				16
+			],
+			[
+				0,
+				20,
+				19
+			],
+			[
+				0,
+				21,
+				16
+			],
+			[
+				0,
+				22,
+				18
+			],
+			[
+				0,
+				23,
+				25
+			],
+			[
+				1,
+				0,
+				6
+			],
+			[
+				1,
+				1,
+				3
+			],
+			[
+				1,
+				2,
+				2
+			],
+			[
+				1,
+				3,
+				2
+			],
+			[
+				1,
+				4,
+				6
+			],
+			[
+				1,
+				5,
+				1
+			],
+			[
+				1,
+				6,
+				1
+			],
+			[
+				1,
+				7,
+				1
+			],
+			[
+				1,
+				8,
+				14
+			],
+			[
+				1,
+				9,
+				31
+			],
+			[
+				1,
+				10,
+				25
+			],
+			[
+				1,
+				11,
+				50
+			],
+			[
+				1,
+				12,
+				35
+			],
+			[
+				1,
+				13,
+				38
+			],
+			[
+				1,
+				14,
+				30
+			],
+			[
+				1,
+				15,
+				44
+			],
+			[
+				1,
+				16,
+				31
+			],
+			[
+				1,
+				17,
+				30
+			],
+			[
+				1,
+				18,
+				19
+			],
+			[
+				1,
+				19,
+				6
+			],
+			[
+				1,
+				20,
+				14
+			],
+			[
+				1,
+				21,
+				29
+			],
+			[
+				1,
+				22,
+				20
+			],
+			[
+				1,
+				23,
+				18
+			],
+			[
+				2,
+				0,
+				13
+			],
+			[
+				2,
+				1,
+				2
+			],
+			[
+				2,
+				2,
+				7
+			],
+			[
+				2,
+				3,
+				1
+			],
+			[
+				2,
+				4,
+				0
+			],
+			[
+				2,
+				5,
+				0
+			],
+			[
+				2,
+				6,
+				2
+			],
+			[
+				2,
+				7,
+				4
+			],
+			[
+				2,
+				8,
+				29
+			],
+			[
+				2,
+				9,
+				28
+			],
+			[
+				2,
+				10,
+				44
+			],
+			[
+				2,
+				11,
+				43
+			],
+			[
+				2,
+				12,
+				33
+			],
+			[
+				2,
+				13,
+				69
+			],
+			[
+				2,
+				14,
+				54
+			],
+			[
+				2,
+				15,
+				43
+			],
+			[
+				2,
+				16,
+				49
+			],
+			[
+				2,
+				17,
+				34
+			],
+			[
+				2,
+				18,
+				20
+			],
+			[
+				2,
+				19,
+				14
+			],
+			[
+				2,
+				20,
+				13
+			],
+			[
+				2,
+				21,
+				31
+			],
+			[
+				2,
+				22,
+				21
+			],
+			[
+				2,
+				23,
+				18
+			],
+			[
+				3,
+				0,
+				11
+			],
+			[
+				3,
+				1,
+				5
+			],
+			[
+				3,
+				2,
+				5
+			],
+			[
+				3,
+				3,
+				0
+			],
+			[
+				3,
+				4,
+				1
+			],
+			[
+				3,
+				5,
+				1
+			],
+			[
+				3,
+				6,
+				1
+			],
+			[
+				3,
+				7,
+				4
+			],
+			[
+				3,
+				8,
+				22
+			],
+			[
+				3,
+				9,
+				47
+			],
+			[
+				3,
+				10,
+				77
+			],
+			[
+				3,
+				11,
+				86
+			],
+			[
+				3,
+				12,
+				54
+			],
+			[
+				3,
+				13,
+				36
+			],
+			[
+				3,
+				14,
+				42
+			],
+			[
+				3,
+				15,
+				54
+			],
+			[
+				3,
+				16,
+				40
+			],
+			[
+				3,
+				17,
+				40
+			],
+			[
+				3,
+				18,
+				33
+			],
+			[
+				3,
+				19,
+				18
+			],
+			[
+				3,
+				20,
+				28
+			],
+			[
+				3,
+				21,
+				32
+			],
+			[
+				3,
+				22,
+				29
+			],
+			[
+				3,
+				23,
+				24
+			],
+			[
+				4,
+				0,
+				16
+			],
+			[
+				4,
+				1,
+				0
+			],
+			[
+				4,
+				2,
+				1
+			],
+			[
+				4,
+				3,
+				0
+			],
+			[
+				4,
+				4,
+				0
+			],
+			[
+				4,
+				5,
+				0
+			],
+			[
+				4,
+				6,
+				1
+			],
+			[
+				4,
+				7,
+				5
+			],
+			[
+				4,
+				8,
+				19
+			],
+			[
+				4,
+				9,
+				53
+			],
+			[
+				4,
+				10,
+				48
+			],
+			[
+				4,
+				11,
+				28
+			],
+			[
+				4,
+				12,
+				39
+			],
+			[
+				4,
+				13,
+				28
+			],
+			[
+				4,
+				14,
+				43
+			],
+			[
+				4,
+				15,
+				64
+			],
+			[
+				4,
+				16,
+				32
+			],
+			[
+				4,
+				17,
+				50
+			],
+			[
+				4,
+				18,
+				11
+			],
+			[
+				4,
+				19,
+				19
+			],
+			[
+				4,
+				20,
+				18
+			],
+			[
+				4,
+				21,
+				18
+			],
+			[
+				4,
+				22,
+				25
+			],
+			[
+				4,
+				23,
+				18
+			],
+			[
+				5,
+				0,
+				9
+			],
+			[
+				5,
+				1,
+				2
+			],
+			[
+				5,
+				2,
+				0
+			],
+			[
+				5,
+				3,
+				0
+			],
+			[
+				5,
+				4,
+				0
+			],
+			[
+				5,
+				5,
+				0
+			],
+			[
+				5,
+				6,
+				1
+			],
+			[
+				5,
+				7,
+				2
+			],
+			[
+				5,
+				8,
+				14
+			],
+			[
+				5,
+				9,
+				35
+			],
+			[
+				5,
+				10,
+				53
+			],
+			[
+				5,
+				11,
+				26
+			],
+			[
+				5,
+				12,
+				25
+			],
+			[
+				5,
+				13,
+				18
+			],
+			[
+				5,
+				14,
+				41
+			],
+			[
+				5,
+				15,
+				35
+			],
+			[
+				5,
+				16,
+				42
+			],
+			[
+				5,
+				17,
+				23
+			],
+			[
+				5,
+				18,
+				23
+			],
+			[
+				5,
+				19,
+				15
+			],
+			[
+				5,
+				20,
+				18
+			],
+			[
+				5,
+				21,
+				21
+			],
+			[
+				5,
+				22,
+				22
+			],
+			[
+				5,
+				23,
+				13
+			],
+			[
+				6,
+				0,
+				24
+			],
+			[
+				6,
+				1,
+				6
+			],
+			[
+				6,
+				2,
+				0
+			],
+			[
+				6,
+				3,
+				0
+			],
+			[
+				6,
+				4,
+				0
+			],
+			[
+				6,
+				5,
+				0
+			],
+			[
+				6,
+				6,
+				0
+			],
+			[
+				6,
+				7,
+				1
+			],
+			[
+				6,
+				8,
+				10
+			],
+			[
+				6,
+				9,
+				35
+			],
+			[
+				6,
+				10,
+				30
+			],
+			[
+				6,
+				11,
+				27
+			],
+			[
+				6,
+				12,
+				34
+			],
+			[
+				6,
+				13,
+				31
+			],
+			[
+				6,
+				14,
+				30
+			],
+			[
+				6,
+				15,
+				24
+			],
+			[
+				6,
+				16,
+				19
+			],
+			[
+				6,
+				17,
+				18
+			],
+			[
+				6,
+				18,
+				23
+			],
+			[
+				6,
+				19,
+				7
+			],
+			[
+				6,
+				20,
+				17
+			],
+			[
+				6,
+				21,
+				19
+			],
+			[
+				6,
+				22,
+				17
+			],
+			[
+				6,
+				23,
+				13
+			]
+		]
+	};
 
 /***/ })
 ]);
-//# sourceMappingURL=demo-grouped-bar.js.map
+//# sourceMappingURL=demo-heatmap.js.map

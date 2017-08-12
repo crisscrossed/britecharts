@@ -220,6 +220,30 @@ define(['d3', 'bar', 'barChartDataBuilder'], function(d3, chart, dataBuilder) {
                 expect(actual).toBe(expected);
             });
 
+            it('should provide xTicks getter and setter', () => {
+                let previous = barChart.xTicks(),
+                    expected = 4,
+                    actual;
+
+                barChart.xTicks(expected);
+                actual = barChart.xTicks();
+
+                expect(previous).not.toBe(actual);
+                expect(actual).toBe(expected);
+            });
+
+            it('should provide yTicks getter and setter', () => {
+                let previous = barChart.yTicks(),
+                    expected = 20,
+                    actual;
+
+                barChart.yTicks(expected);
+                actual = barChart.yTicks();
+
+                expect(previous).not.toBe(actual);
+                expect(actual).toBe(expected);
+            });
+
             it('should provide yAxisPaddingBetweenChart getter and setter', () => {
                 let previous = barChart.yAxisPaddingBetweenChart(),
                     expected = 15,
@@ -235,7 +259,7 @@ define(['d3', 'bar', 'barChartDataBuilder'], function(d3, chart, dataBuilder) {
 
         describe('when hovering a bar', function() {
 
-            it('should trigger a callback', () => {
+            it('should trigger a callback on mouse over', () => {
                 let bar = containerFixture.selectAll('.bar:nth-child(1)');
                 let callbackSpy = jasmine.createSpy('callback');
 
@@ -243,6 +267,29 @@ define(['d3', 'bar', 'barChartDataBuilder'], function(d3, chart, dataBuilder) {
                 bar.dispatch('mouseover');
 
                 expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
+            });
+
+            it('should trigger a callback on mouse move', () => {
+                let bar = containerFixture.selectAll('.bar:nth-child(1)');
+                let callbackSpy = jasmine.createSpy('callback');
+
+                barChart.on('customMouseMove', callbackSpy);
+                bar.dispatch('mousemove');
+
+                expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
+            });
+
+            it('should trigger a callback on mouse out', () => {
+                let bar = containerFixture.selectAll('.bar:nth-child(1)');
+                let callbackSpy = jasmine.createSpy('callback');
+
+                barChart.on('customMouseOut', callbackSpy);
+                bar.dispatch('mouseout');
+
+                expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
             });
         });
     });

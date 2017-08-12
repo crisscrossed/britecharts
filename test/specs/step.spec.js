@@ -86,16 +86,16 @@ define(['jquery', 'd3', 'step', 'stepChartDataBuilder'], function($, d3, chart, 
                 expect(newHeight).toBe(testHeight);
             });
 
-            it('should provide numOfVerticalTicks getter and setter', () => {
-                let defaultNumOfVerticalTicks = stepChart.numOfVerticalTicks(),
-                    testNumOfVerticalTicks = 20,
-                    newNumOfVerticalTicks;
+            it('should provide yTicks getter and setter', () => {
+                let previous = stepChart.yTicks(),
+                    expected = 20,
+                    actual;
 
-                stepChart.numOfVerticalTicks(testNumOfVerticalTicks);
-                newNumOfVerticalTicks = stepChart.numOfVerticalTicks();
+                stepChart.yTicks(expected);
+                actual = stepChart.yTicks();
 
-                expect(defaultNumOfVerticalTicks).not.toBe(newNumOfVerticalTicks);
-                expect(newNumOfVerticalTicks).toBe(testNumOfVerticalTicks);
+                expect(previous).not.toBe(actual);
+                expect(actual).toBe(expected);
             });
 
             it('should provide width getter and setter', () => {
@@ -169,6 +169,29 @@ define(['jquery', 'd3', 'step', 'stepChartDataBuilder'], function($, d3, chart, 
                 step.dispatch('mouseover');
 
                 expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
+            });
+
+            it('should trigger a callback', () => {
+                let step = containerFixture.select('.step:nth-child(1)');
+                let callbackSpy = jasmine.createSpy('callback');
+
+                stepChart.on('customMouseMove', callbackSpy);
+                step.dispatch('mousemove');
+
+                expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
+            });
+
+            it('should trigger a callback', () => {
+                let step = containerFixture.select('.step:nth-child(1)');
+                let callbackSpy = jasmine.createSpy('callback');
+
+                stepChart.on('customMouseOut', callbackSpy);
+                step.dispatch('mouseout');
+
+                expect(callbackSpy.calls.count()).toBe(1);
+                expect(callbackSpy.calls.allArgs()[0].length).toBe(3);
             });
         });
 

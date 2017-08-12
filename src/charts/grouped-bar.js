@@ -11,6 +11,7 @@ define(function (require) {
     const d3Scale = require('d3-scale');
     const d3Selection = require('d3-selection');
     const assign = require('lodash.assign');
+    const d3Transition = require('d3-transition');
 
     const { exportChart } = require('./helpers/exportChart');
     const colorHelper = require('./helpers/colors');
@@ -86,14 +87,11 @@ define(function (require) {
             yTickTextYOffset = -8,
             yTickTextXOffset = -20,
 
-            xTickTextYOffset = -8,
-            xTickTextXOffset = -20,
-
-            numOfVerticalTicks = 5,
-            numOfHorizontalTicks = 5,
+            yTicks = 5,
+            xTicks = 5,
             baseLine,
 
-            colorSchema = colorHelper.colorSchemas.britechartsColorSchema,
+            colorSchema = colorHelper.colorSchemas.britecharts,
 
             colorScale,
             categoryColorMap,
@@ -171,14 +169,24 @@ define(function (require) {
         function addMouseEvents() {
             if (shouldShowTooltip()) {
                 svg
-                    .on('mouseover', handleMouseOver)
-                    .on('mouseout', handleMouseOut)
-                    .on('mousemove', handleMouseMove);
+                    .on('mouseover', function(d) {
+                        handleMouseOver(this, d);
+                    })
+                    .on('mouseout', function(d) {
+                        handleMouseOut(this, d);
+                    })
+                    .on('mousemove',  function(d) {
+                        handleMouseMove(this, d);
+                    });
             }
 
             svg.selectAll('.bar')
-                .on('mouseover', handleBarsMouseOver)
-                .on('mouseout', handleBarsMouseOut);
+                .on('mouseover', function(d) {
+                    handleBarsMouseOver(this, d);
+                })
+                .on('mouseout', function(d) {
+                    handleBarsMouseOut(this, d);
+                });
         }
 
         /**
@@ -211,12 +219,12 @@ define(function (require) {
         function buildAxis() {
             if (isHorizontal) {
                 xAxis = d3Axis.axisBottom(xScale)
-                    .ticks(numOfHorizontalTicks, valueLabelFormat);
+                    .ticks(xTicks, valueLabelFormat);
                 yAxis = d3Axis.axisLeft(yScale)
             } else {
                 xAxis = d3Axis.axisBottom(xScale)
                 yAxis = d3Axis.axisLeft(yScale)
-                    .ticks(numOfVerticalTicks, valueLabelFormat)
+                    .ticks(yTicks, valueLabelFormat)
             }
         }
 
@@ -426,7 +434,7 @@ define(function (require) {
             if (grid === 'horizontal' || grid === 'full') {
                 svg.select('.grid-lines-group')
                     .selectAll('line.horizontal-grid-line')
-                    .data(scale.ticks(numOfVerticalTicks).slice(1))
+                    .data(scale.ticks(yTicks).slice(1))
                     .enter()
                       .append('line')
                         .attr('class', 'horizontal-grid-line')
@@ -439,7 +447,7 @@ define(function (require) {
             if (grid === 'vertical' || grid === 'full') {
                 svg.select('.grid-lines-group')
                     .selectAll('line.vertical-grid-line')
-                    .data(scale.ticks(numOfHorizontalTicks).slice(1))
+                    .data(scale.ticks(xTicks).slice(1))
                     .enter()
                       .append('line')
                         .attr('class', 'vertical-grid-line')
@@ -603,31 +611,35 @@ define(function (require) {
 
         /**
          * Handles a mouseover event on top of a bar
+         * @param  {obj} e the fired event
          * @param  {obj} d data of bar
          * @return {void}
          */
-        function handleBarsMouseOver(d) {
-            d3Selection.select(this)
+        function handleBarsMouseOver(e, d) {
+            d3Selection.select(e)
                 .attr('fill', () => d3Color.color(categoryColorMap[d.group]).darker());
         }
 
         /**
          * Handles a mouseout event out of a bar
+         * @param  {obj} e the fired event
          * @param  {obj} d data of bar
          * @return {void}
          */
-        function handleBarsMouseOut(d) {
-            d3Selection.select(this)
+        function handleBarsMouseOut(e, d) {
+            d3Selection.select(e)
                 .attr('fill', () => categoryColorMap[d.group])
         }
 
         /**
          * MouseMove handler, calculates the nearest dataPoint to the cursor
          * and updates metadata related to it
+         * @param  {obj} e the fired event
+         * @param  {obj} d data of bar
          * @private
          */
-        function handleMouseMove() {
-            let [mouseX, mouseY] = getMousePosition(this),
+        function handleMouseMove(e, d) {
+            let [mouseX, mouseY] = getMousePosition(e),
                 dataPoint = isHorizontal ? getNearestDataPoint2(mouseY) : getNearestDataPoint(mouseX),
                 x,
                 y;
@@ -644,7 +656,7 @@ define(function (require) {
                 moveTooltipOriginXY(x, y);
 
                 // Emit event with xPosition for tooltip or similar feature
-                dispatcher.call('customMouseMove', this, dataPoint, categoryColorMap, x, y);
+                dispatcher.call('customMouseMove', e, dataPoint, categoryColorMap, x, y);
             }
         }
 
@@ -653,17 +665,17 @@ define(function (require) {
          * It also resets the container of the vertical marker
          * @private
          */
-        function handleMouseOut(d) {
+        function handleMouseOut(e, d) {
             svg.select('.metadata-group').attr('transform', 'translate(9999, 0)');
-            dispatcher.call('customMouseOut', this, d);
+            dispatcher.call('customMouseOut', e, d, d3Selection.mouse(e));
         }
 
         /**
          * Mouseover handler, shows overlay and adds active class to verticalMarkerLine
          * @private
          */
-        function handleMouseOver(d) {
-            dispatcher.call('customMouseOver', this, d);
+        function handleMouseOver(e, d) {
+            dispatcher.call('customMouseOver', e, d, d3Selection.mouse(e));
         }
 
         /**
@@ -850,13 +862,13 @@ define(function (require) {
 
             return this;
         };
-        
+
         /**
          * Gets or Sets the horizontal direction of the chart
          * @param  {number} _x Desired horizontal direction for the chart
          * @return { isHorizontal | module} If it is horizontal or module to chain calls
          * @deprecated
-         */        
+         */
         exports.horizontal = function (_x) {
             if (!arguments.length) {
                 return isHorizontal;
@@ -915,31 +927,16 @@ define(function (require) {
         };
 
         /**
-         * Gets or Sets the number of verticalTicks of the axis on the chart
-         * @param  {Number} _x Desired verticalTicks
-         * @return { numOfHorizontalTicks | module} Current numOfHorizontalTicks or Chart module to chain calls
+         * Gets or Sets the number of ticks of the y axis on the chart
+         * @param  {Number} _x          Desired vertical ticks
+         * @return {Number | module}    Current yTicks or Chart module to chain calls
          * @public
          */
-        exports.numOfHorizontalTicks = function (_x) {
+        exports.yTicks = function (_x) {
             if (!arguments.length) {
-                return numOfHorizontalTicks;
+                return yTicks;
             }
-            numOfHorizontalTicks = _x;
-
-            return this;
-        };
-
-        /**
-         * Gets or Sets the number of verticalTicks of the axis on the chart
-         * @param  {Number} _x Desired verticalTicks
-         * @return { numOfVerticalTicks | module} Current numOfVerticalTicks or Chart module to chain calls
-         * @public
-         */
-        exports.numOfVerticalTicks = function (_x) {
-            if (!arguments.length) {
-                return numOfVerticalTicks;
-            }
-            numOfVerticalTicks = _x;
+            yTicks = _x;
 
             return this;
         };
@@ -1019,6 +1016,21 @@ define(function (require) {
                 height = Math.ceil(_x * aspectRatio);
             }
             width = _x;
+
+            return this;
+        };
+
+        /**
+         * Gets or Sets the number of ticks of the x axis on the chart
+         * @param  {Number} _x Desired xTicks
+         * @return {Number | module} Current xTicks or Chart module to chain calls
+         * @public
+         */
+        exports.xTicks = function (_x) {
+            if (!arguments.length) {
+                return xTicks;
+            }
+            xTicks = _x;
 
             return this;
         };
