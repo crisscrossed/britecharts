@@ -641,6 +641,22 @@ define(function(require){
         };
 
         /**
+         * Gets or Sets the tooltipWidth of the tooltip
+         * @param  {number} _x Desired tooltipWidth
+         * @return { number | module} tooltipWidth title or module to chain calls
+         * @public
+         */
+
+        exports.tooltipWidth = function(_x) {
+            if (!arguments.length) {
+                return tooltipWidth;
+            }
+            tooltipWidth = _x;
+
+            return this;
+        };
+
+        /**
          * Pass an override for the ordering of your tooltip
          * @param  {Object[]} _x    Array of the names of your tooltip items
          * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
