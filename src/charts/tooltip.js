@@ -236,17 +236,22 @@ define(function(require){
          */
         function getFormattedValue(value) {
             let valueFormatter = formatDecimalValue;
-
+            
             if (!value) {
                 return 0;
             }
-            if (valueFormat) {
-                valueFormatter = d3Format.format(valueFormat);
-            } else if (isInteger(value)) {
-                valueFormatter = formatIntegerValue;
-            }
 
-            return valueFormatter(value);
+            // checkx custom change
+            // if (isInteger(value)) {
+            //     value = formatIntegerValue(value);
+            // } else {
+            //     value = formatDecimalValue(value);
+            // }
+            if (value > 1000) {
+                return String(Math.round(value / 1000000)) + ' m'
+            } else {
+                return value
+            }
         }
 
         /**
@@ -328,7 +333,7 @@ define(function(require){
                 .attr('y', ttTextY)
                 .style('fill', tooltipTextColor)
                 .text(tooltipLeftText)
-                .call(textWrap, tooltipMaxTopicLength, -25);
+                .call(textWrap, tooltipMaxTopicLength, -20);
 
             tooltipRight = tooltipBody
                 .append('text')

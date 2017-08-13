@@ -250,14 +250,18 @@ define(function(require){
          */
         function getFormattedValue(value) {
             let format;
-
-            if (isInteger(value)) {
-                format = formatIntegerValue;
-            } else {
-                format = formatDecimalValue;
+            // checkx custom change
+            // if (isInteger(value)) {
+            //     format = formatIntegerValue;
+            // } else {
+            //     format = formatDecimalValue;
+            // }
+            let newValue
+            if (value > 1000) {
+              newValue = String(value / 1000000) + ' Mio.'
             }
-
-            return format(value);
+            return newValue
+            // return format(value);
         }
 
         /**

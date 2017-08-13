@@ -315,8 +315,9 @@ define(function(require){
                 .selectAll('g.legend-line')
                 .selectAll('g.legend-entry')
               .append('text')
-                .classed('legend-entry-value', true)
-                .text(getFormattedQuantity)
+                // checkx custom change
+                // .classed('legend-entry-value', true)
+                // .text(getFormattedQuantity)
                 .attr('x', chartWidth - valueReservedSpace)
                 .style('font-size', `${textSize}px`)
                 .style('letter-spacing', `${numberLetterSpacing}px`)
