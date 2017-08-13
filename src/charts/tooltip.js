@@ -108,14 +108,13 @@ define(function(require){
             nameLabel = 'name',
             topicLabel = 'topics',
 
-            defaultAxisSettings = axisTimeCombinations.YEAR,
-            forceAxisSettings = null,
-            forceOrder = [],
+            defaultAxisSettings = axisTimeCombinations.DAY_MONTH,
+            dateFormat = null,
+            topicsOrder = [],
 
             // formats
             monthDayYearFormat = d3TimeFormat.timeFormat('%b %d, %Y'),
             monthDayHourFormat = d3TimeFormat.timeFormat('%b %d, %I %p'),
-            yearFormat = d3TimeFormat.timeFormat('%Y'),
             locale,
 
             chartWidth, chartHeight,
@@ -241,17 +240,13 @@ define(function(require){
             if (!value) {
                 return 0;
             }
-
-            // if (isInteger(value)) {
-            //     value = formatIntegerValue(value);
-            // } else {
-            //     value = formatDecimalValue(value);
-            // }
-            if (value > 1000) {
-               return String(Math.round(value / 1000000)) + ' m'
-            } else {
-               return value
+            if (valueFormat) {
+                valueFormatter = d3Format.format(valueFormat);
+            } else if (isInteger(value)) {
+                valueFormatter = formatIntegerValue;
             }
+
+            return valueFormatter(value);
         }
 
         /**
@@ -316,7 +311,6 @@ define(function(require){
          * @return void
          */
         function updateTopicContent(topic){
-            let color = topic['group'] ? topic['group'] : topic[nameLabel]
             let name = topic[nameLabel],
                 tooltipRight,
                 tooltipLeftText,
@@ -334,7 +328,7 @@ define(function(require){
                 .attr('y', ttTextY)
                 .style('fill', tooltipTextColor)
                 .text(tooltipLeftText)
-                .call(textWrap, tooltipMaxTopicLength, -20);
+                .call(textWrap, tooltipMaxTopicLength, -25);
 
             tooltipRight = tooltipBody
                 .append('text')
@@ -346,8 +340,9 @@ define(function(require){
                 .text(tooltipRightText);
 
             textSize = elementText.node().getBBox();
-            tooltipHeight += textSize.height + 10;
+            tooltipHeight += textSize.height + 5;
 
+            // Not sure if necessary
             tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4)
 
             tooltipBody
@@ -356,7 +351,7 @@ define(function(require){
                 .attr('cx', 23 - tooltipWidth / 4)
                 .attr('cy', (ttTextY + circleYOffset))
                 .attr('r', 5)
-                .style('fill', colorMap[color])
+                .style('fill', colorMap[name])
                 .style('stroke-width', 1);
 
             ttTextY += textSize.height + 7;
@@ -392,16 +387,12 @@ define(function(require){
          * @param  {Object} dataPoint Point of data to use as source
          * @return void
          */
-         function updateTitle(dataPoint) {
-             var tooltipTitleText
-             if (isNaN(dataPoint[dateLabel])) {
-                tooltipTitleText = dataPoint.name
-             } else {
-                 var date = new Date(dataPoint[dateLabel]);
-                 tooltipTitleText = title + ' ' + formatDate(date);
-             }
-             tooltipTitle.text(tooltipTitleText);
-         }
+        function updateTitle(dataPoint) {
+            var date = new Date(dataPoint[dateLabel]),
+                tooltipTitleText = title + ' - ' + formatDate(date);
+
+            tooltipTitle.text(tooltipTitleText);
+        }
 
         /**
          * Figures out which date format to use when showing the date of the current data entry
@@ -418,9 +409,6 @@ define(function(require){
             } else if (settings === axisTimeCombinations.HOUR_DAY || settings === axisTimeCombinations.MINUTE_HOUR) {
                 format = monthDayHourFormat;
                 localeOptions.hour = 'numeric';
-            } else if (settings === axisTimeCombinations.YEAR) {
-                format = yearFormat;
-                localeOptions.year = 'numeric';
             }
 
             if (locale && ((typeof Intl !== 'undefined') && (typeof Intl === 'object' && Intl.DateTimeFormat))) {
@@ -529,18 +517,14 @@ define(function(require){
          * @return void
          */
         function updateContent(dataPoint){
-            var topics
-            if (!dataPoint['group']) {
-                topics = dataPoint[topicLabel];
-            } else {
-                topics = dataPoint.values
+            var topics = dataPoint[topicLabel];
+
+            // sort order by topicsOrder array if passed
+            if (topicsOrder.length) {
+                topics = _sortByTopicsOrder(topics);
+            } else if (topics.length && topics[0].name) {
+                topics = _sortByAlpha(topics);
             }
-            // sort order by forceOrder array if passed
-            // if (forceOrder.length) {
-            //     topics = _sortByForceOrder(topics);
-            // } else if (topics.length && topics[0].name) {
-            //     topics = _sortByAlpha(topics);
-            // }
 
             cleanContent();
             updateTitle(dataPoint);
@@ -623,7 +607,7 @@ define(function(require){
             locale = _x;
 
             return this;
-        };
+        };        
 
         /**
          * Gets or Sets the nameLabel of the data
@@ -652,17 +636,16 @@ define(function(require){
         };
 
         /**
-         * Gets or Sets the tooltipWidth of the tooltip
-         * @param  {number} _x Desired tooltipWidth
-         * @return { number | module} tooltipWidth title or module to chain calls
+         * Pass an override for the ordering of your tooltip
+         * @param  {Object[]} _x    Array of the names of your tooltip items
+         * @return { overrideOrder | module} Current overrideOrder or Chart module to chain calls
          * @public
          */
-
-        exports.tooltipWidth = function(_x) {
+        exports.topicsOrder = function(_x) {
             if (!arguments.length) {
-                return tooltipWidth;
+                return topicsOrder;
             }
-            tooltipWidth = _x;
+            topicsOrder = _x;
 
             return this;
         };

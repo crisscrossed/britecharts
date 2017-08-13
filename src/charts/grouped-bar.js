@@ -190,19 +190,6 @@ define(function (require) {
         }
 
         /**
-         * Adjusts the position of the x axis' ticks
-         * @param  {D3Selection} selection X axis group
-         * @return void
-         */
-        function adjustXTickLabels(selection) {
-            selection.selectAll('.tick text')
-                // .attr('transform', `translate(${xTickTextXOffset}, ${xTickTextYOffset})`)
-                .attr("dx", "6.5em")
-                .attr("dy", "2em")
-                .attr("transform", "rotate(45 -10 10)" );
-        }
-
-        /**
          * Adjusts the position of the y axis' ticks
          * @param  {D3Selection} selection Y axis group
          * @return void
@@ -380,8 +367,7 @@ define(function (require) {
             } else {
                 svg.select('.x-axis-group .axis.x')
                     .attr('transform', `translate( 0, ${chartHeight} )`)
-                    .call(xAxis)
-                    .call(adjustXTickLabels);
+                    .call(xAxis);
 
                 svg.select('.y-axis-group.axis')
                     .attr('transform', `translate( ${-xAxisPadding.left}, 0)`)
