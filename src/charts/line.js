@@ -258,7 +258,7 @@ define(function(require){
             // }
             let newValue
             if (value > 1000) {
-              newValue = String(value / 1000000) + ' Mio.'
+              newValue = String(value / 1000000) + ' m'
             }
             return newValue
             // return format(value);

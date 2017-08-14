@@ -113,7 +113,8 @@ define(function(require){
             topicsOrder = [],
 
             // formats
-            monthDayYearFormat = d3TimeFormat.timeFormat('%b %d, %Y'),
+            // checkx change to %Y only
+            monthDayYearFormat = d3TimeFormat.timeFormat('%Y'),
             monthDayHourFormat = d3TimeFormat.timeFormat('%b %d, %I %p'),
             locale,
 
