@@ -395,7 +395,7 @@ define(function(require){
          */
         function updateTitle(dataPoint) {
             var date = new Date(dataPoint[dateLabel]),
-                tooltipTitleText = title + ' - ' + formatDate(date);
+                tooltipTitleText = title + '' + formatDate(date);
 
             tooltipTitle.text(tooltipTitleText);
         }
