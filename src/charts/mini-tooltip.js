@@ -299,7 +299,7 @@ define(function(require){
                     .style('fill', valueTextFillColor)
                     .style('font-size', valueTextSize)
                     .style('font-weight', valueTextWeight)
-                    .text(value + million);
+                    .text(value.toLocaleString(window.locale) + million);
 
                 temporalHeight = valueLineHeight + temporalHeight;
             }

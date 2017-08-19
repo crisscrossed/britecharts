@@ -251,7 +251,7 @@ define(function(require){
 
             if (value > 1000) {
                 let million = window.locale === 'de' ? ' Mio.' : ' m'
-                return String(Math.round(value / 1000000)) + million
+                return Math.round(value / 1000000).toLocaleString(window.locale) + million
             } else {
                 return value
             }
