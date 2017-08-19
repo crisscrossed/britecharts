@@ -237,7 +237,7 @@ define(function(require){
          */
         function getFormattedValue(value) {
             let valueFormatter = formatDecimalValue;
-            
+
             if (!value) {
                 return 0;
             }
@@ -248,8 +248,10 @@ define(function(require){
             // } else {
             //     value = formatDecimalValue(value);
             // }
+
             if (value > 1000) {
-                return String(Math.round(value / 1000000)) + ' m'
+                let million = window.locale === 'de' ? ' Mio.' : ' m'
+                return String(Math.round(value / 1000000)) + million
             } else {
                 return value
             }
@@ -317,6 +319,8 @@ define(function(require){
          * @return void
          */
         function updateTopicContent(topic){
+            // checkx extra Zeile color
+            let color = topic['group'] ? topic['group'] : topic[nameLabel]
             let name = topic[nameLabel],
                 tooltipRight,
                 tooltipLeftText,
@@ -346,10 +350,12 @@ define(function(require){
                 .text(tooltipRightText);
 
             textSize = elementText.node().getBBox();
-            tooltipHeight += textSize.height + 5;
+            tooltipHeight += textSize.height + 10;
 
             // Not sure if necessary
+            // checkx small adjustments
             tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4)
+            // tooltipRight.attr('x', tooltipWidth - tooltipRight.node().getBBox().width - 10 - tooltipWidth / 4)
 
             tooltipBody
                 .append('circle')
@@ -357,7 +363,8 @@ define(function(require){
                 .attr('cx', 23 - tooltipWidth / 4)
                 .attr('cy', (ttTextY + circleYOffset))
                 .attr('r', 5)
-                .style('fill', colorMap[name])
+                // checkx change key
+                .style('fill', colorMap[color])
                 .style('stroke-width', 1);
 
             ttTextY += textSize.height + 7;
@@ -394,8 +401,14 @@ define(function(require){
          * @return void
          */
         function updateTitle(dataPoint) {
-            var date = new Date(dataPoint[dateLabel]),
-                tooltipTitleText = title + '' + formatDate(date);
+            var tooltipTitleText
+            if (isNaN(dataPoint[dateLabel])) {
+               tooltipTitleText = dataPoint.name
+            } else {
+                var date = new Date(dataPoint[dateLabel]);
+                // checkx remove -
+                tooltipTitleText = title + ' ' + formatDate(date);
+            }
 
             tooltipTitle.text(tooltipTitleText);
         }
@@ -526,11 +539,26 @@ define(function(require){
             var topics = dataPoint[topicLabel];
 
             // sort order by topicsOrder array if passed
-            if (topicsOrder.length) {
-                topics = _sortByTopicsOrder(topics);
-            } else if (topics.length && topics[0].name) {
-                topics = _sortByAlpha(topics);
+            // if (topicsOrder.length) {
+            //     topics = _sortByTopicsOrder(topics);
+            // } else if (topics.length && topics[0].name) {
+            //     topics = _sortByAlpha(topics);
+            // }
+
+            // checkx complete different logic
+
+            // line chart
+            if (dataPoint['topics']) {
+                topics = dataPoint[topicLabel];
+            // grouped bar
+            } else if (dataPoint['group']) {
+                topics = dataPoint.values
+            // bar chart
+            } else {
+                topics = [dataPoint]
             }
+
+            // debugger
 
             cleanContent();
             updateTitle(dataPoint);
@@ -613,7 +641,7 @@ define(function(require){
             locale = _x;
 
             return this;
-        };        
+        };
 
         /**
          * Gets or Sets the nameLabel of the data

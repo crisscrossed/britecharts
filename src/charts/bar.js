@@ -166,8 +166,19 @@ define(function(require) {
                 xAxis = d3Axis.axisBottom(xScale);
 
                 yAxis = d3Axis.axisLeft(yScale)
-                    .ticks(yTicks, valueLabelFormat)
+                    .ticks(yTicks)
+                    .tickFormat(getFormattedValue);
             }
+        }
+
+        function getFormattedValue(value) {
+            let newValue
+            if (value > 0) {
+                let million = window.locale === 'de' ? ' Mio.' : ' m'
+                newValue = String(value) + million
+            }
+            return newValue
+            // return format(value);
         }
 
         /**
@@ -295,7 +306,8 @@ define(function(require) {
         function drawAxis() {
             svg.select('.x-axis-group.axis')
                 .attr('transform', `translate(0, ${chartHeight})`)
-                .call(xAxis);
+                // checkx turn off x-axis labels
+                // .call(xAxis)
 
             svg.select('.y-axis-group.axis')
                 .call(yAxis);
@@ -678,7 +690,7 @@ define(function(require) {
          * @param  {number} _x Desired horizontal direction for the chart
          * @return { isHorizontal | module} If it is horizontal or module to chain calls
          * @deprecated
-         */        
+         */
         exports.horizontal = function (_x) {
             if (!arguments.length) {
                 return isHorizontal;

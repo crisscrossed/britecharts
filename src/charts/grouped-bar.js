@@ -194,6 +194,19 @@ define(function (require) {
          * @param  {D3Selection} selection Y axis group
          * @return void
          */
+        // checkx adjust x-axis ticks
+        function adjustXTickLabels(selection) {
+            let height = 0
+            if (selection._groups[0][0].nodeType % 2) {
+                height = 20
+            }
+            selection.selectAll('.tick text').each(function (d, i) {
+                if ((i % 2)) {
+                d3.select(this).attr('transform', `translate(0, ${height})`);
+                }
+            });
+        }
+
         function adjustYTickLabels(selection) {
             selection.selectAll('.tick text')
                 .attr('transform', `translate(${yTickTextXOffset}, ${yTickTextYOffset})`);
@@ -366,13 +379,14 @@ define(function (require) {
                     .call(yAxis);
             } else {
                 svg.select('.x-axis-group .axis.x')
-                    .attr('transform', `translate( 0, ${chartHeight} )`)
-                    .call(xAxis);
+                    .attr('transform', `translate( 30, ${chartHeight} )`)
+                    .call(xAxis)
+                    .call(adjustXTickLabels);
 
                 svg.select('.y-axis-group.axis')
                     .attr('transform', `translate( ${-xAxisPadding.left}, 0)`)
                     .call(yAxis)
-                    .call(adjustYTickLabels);
+                    // call(adjustYTickLabels);
             }
         }
 

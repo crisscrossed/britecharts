@@ -249,7 +249,6 @@ define(function(require){
          * @return {Number}       Formatted value
          */
         function getFormattedValue(value) {
-            let format;
             // checkx custom change
             // if (isInteger(value)) {
             //     format = formatIntegerValue;
@@ -258,7 +257,8 @@ define(function(require){
             // }
             let newValue
             if (value > 1000) {
-              newValue = String(value / 1000000) + ' m'
+                let million = window.locale === 'de' ? ' Mio.' : ' m'
+                newValue = String(value / 1000000) + million
             }
             return newValue
             // return format(value);
