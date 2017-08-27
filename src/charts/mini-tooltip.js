@@ -291,6 +291,10 @@ define(function(require){
             if (value) {
                 // checkx add locale
                 let million = window.locale === 'de' ? ' Mio.' : ' m'
+                value= parseFloat(value).toFixed(2)
+                if (window.locale === 'de') {
+                    value = value.replace('.', ',')
+                }
                 tooltipValue = tooltipTextContainer
                   .append('text')
                     .classed('mini-tooltip-value', true)
@@ -299,7 +303,7 @@ define(function(require){
                     .style('fill', valueTextFillColor)
                     .style('font-size', valueTextSize)
                     .style('font-weight', valueTextWeight)
-                    .text(value.toLocaleString(window.locale) + million);
+                    .text(value + million);
 
                 temporalHeight = valueLineHeight + temporalHeight;
             }
